@@ -1,1020 +1,949 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IO Network — Allocation Portal</title>
+  <meta name="description" content="IO Network allocation portal with market information, allocation tools and ecosystem information.">
 
-  <title>IO Network — Web3 Allocation Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <meta
-    name="description"
-    content="IO Network Web3 allocation portal with market information, allocation tools and ecosystem information."
-  />
-
-  <link
-    rel="preconnect"
-    href="https://fonts.googleapis.com"
-  />
-
-  <link
-    rel="preconnect"
-    href="https://fonts.gstatic.com"
-    crossorigin
-  />
-
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-    rel="stylesheet"
-  />
-
-  <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="./styles.css">
 </head>
 
 <body>
 
 <div class="app">
 
-  <!-- HEADER -->
-  <header class="header">
+<header class="header">
 
-    <a href="#" class="brand">
+  <a class="brand" href="#">
+    <span class="brand-logo">
+      <svg viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="48" fill="#050505"/>
+        <g fill="none" stroke="#fff" stroke-width="8"
+           stroke-linecap="round" stroke-linejoin="round">
+          <path d="M29 34h15"/>
+          <path d="M29 66h15"/>
+          <path d="M37 34v32"/>
+          <path d="M56 34h13c7 0 12 5 12 12v8c0 7-5 12-12 12H56"/>
+          <path d="M56 34v32"/>
+          <path d="M56 50h16"/>
+        </g>
+      </svg>
+    </span>
 
-      <span class="brand-logo">
-        <img src="./assets/io-logo.png" alt="IO" />
-      </span>
+    <span class="brand-text">
+      <strong>IO Network</strong>
+      <small>WEB3 ALLOCATION PORTAL</small>
+    </span>
+  </a>
 
-      <span class="brand-text">
-        <strong>IO Network</strong>
-        <small>WEB3 ALLOCATION PORTAL</small>
-      </span>
+  <nav>
+    <a href="#about">About</a>
+    <a href="#buyback">Allocation</a>
+    <a href="#how">How it works</a>
+    <a href="#activity">Activity</a>
+  </nav>
 
-    </a>
+  <div class="header-actions">
+    <button id="themeToggle" class="icon-button" type="button">☾</button>
+    <button id="connectWallet" class="wallet-button" type="button">
+      Connect Wallet
+    </button>
+  </div>
 
-    <nav>
-      <a href="#about">About</a>
-      <a href="#buyback">Buyback</a>
-      <a href="#how">How it works</a>
-      <a href="#activity">Activity</a>
-    </nav>
+</header>
 
-    <div class="header-actions">
 
-      <button
-        id="themeToggle"
-        class="icon-button"
-        type="button"
-        aria-label="Toggle theme"
-      >
-        ☾
-      </button>
+<main>
 
-      <button
-        id="connectWallet"
-        class="wallet-button"
-        type="button"
-      >
-        Connect Wallet
-      </button>
+<section class="hero">
 
+  <div class="hero-copy">
+
+    <div class="eyebrow">
+      <i></i>
+      IO NETWORK • WEB3 ALLOCATION
     </div>
 
-  </header>
+    <h1>
+      Explore the
+      <span>IO allocation</span>
+      portal.
+    </h1>
 
+    <p>
+      Review IO market information, understand the participation
+      process and estimate an allocation using the configured
+      portal parameters.
+    </p>
 
-  <main>
+    <div class="hero-actions">
+      <a href="#buyback" class="primary-button">
+        Explore allocation
+      </a>
 
-    <!-- HERO -->
-    <section class="hero">
+      <a href="#about" class="secondary-button">
+        Learn about IO
+      </a>
+    </div>
 
-      <div class="hero-copy">
-
-        <div class="eyebrow">
-          IO NETWORK • WEB3 ALLOCATION
-        </div>
-
-        <h1>
-          The next IO allocation starts here.
-        </h1>
-
-        <p>
-          Explore IO market information, understand the
-          allocation process and use the portal's tools
-          to estimate an allocation within the configured
-          participation limits.
-        </p>
-
-        <div class="hero-actions">
-
-          <a
-            href="#buyback"
-            class="primary-button"
-          >
-            Explore allocation
-          </a>
-
-          <a
-            href="#about"
-            class="secondary-button"
-          >
-            Learn about IO
-          </a>
-
-        </div>
-
-      </div>
-
-
-      <div class="hero-visual">
-
-        <div class="orbit orbit-one"></div>
-        <div class="orbit orbit-two"></div>
-
-        <div class="hero-token">
-          <img
-            src="./assets/io-logo.png"
-            alt="IO"
-          />
-        </div>
-
-        <span class="hero-token-label">
-          IO NETWORK
-        </span>
-
-      </div>
-
-    </section>
-
-
-    <!-- KEY STATS -->
-    <section class="stats">
-
-      <article class="stat-card">
-        <span>MINIMUM PARTICIPATION</span>
+    <div class="hero-mini-stats">
+      <div>
         <strong>5 BNB</strong>
-        <small>Configured portal limit</small>
-      </article>
-
-      <article class="stat-card">
-        <span>MAXIMUM PARTICIPATION</span>
-        <strong>500 BNB</strong>
-        <small>Configured portal limit</small>
-      </article>
-
-      <article class="stat-card">
-        <span>ALLOCATION BONUS</span>
-        <strong>11%</strong>
-        <small>Configured bonus rate</small>
-      </article>
-
-      <article class="stat-card">
-        <span>NETWORK</span>
-        <strong>BNB Smart Chain</strong>
-        <small>Configured network</small>
-      </article>
-
-    </section>
-
-
-    <!-- MARKET -->
-    <section class="section" id="market">
-
-      <div class="section-heading">
-
-        <div>
-          <span class="section-number">01</span>
-          <div class="section-kicker">MARKET</div>
-          <h2>IO market</h2>
-          <p>
-            Current market information updated from a public
-            crypto price feed.
-          </p>
-        </div>
-
-        <span class="live-pill">
-          <i></i>
-          LIVE
-        </span>
-
+        <span>Minimum</span>
       </div>
-
-
-      <div class="market-grid">
-
-        <!-- IO -->
-        <article class="market-card">
-
-          <div class="market-top">
-
-            <div class="token-icon">
-              <img
-                src="./assets/io-logo.png"
-                alt="IO logo"
-              />
-            </div>
-
-            <span class="live-status">
-              <i></i>
-              LIVE
-            </span>
-
-          </div>
-
-          <div class="token-name">
-            IO
-          </div>
-
-          <div
-            id="ioPrice"
-            class="market-price"
-          >
-            Loading...
-          </div>
-
-          <div
-            id="ioChange"
-            class="market-change"
-          >
-            Updating market data
-          </div>
-
-          <p>
-            Current IO market price
-          </p>
-
-        </article>
-
-
-        <!-- BNB -->
-        <article class="market-card">
-
-          <div class="market-top">
-
-            <div class="token-icon">
-              <img
-                src="./assets/bnb-logo.png"
-                alt="BNB logo"
-              />
-            </div>
-
-            <span class="live-status">
-              <i></i>
-              LIVE
-            </span>
-
-          </div>
-
-          <div class="token-name">
-            BNB
-          </div>
-
-          <div
-            id="bnbPrice"
-            class="market-price"
-          >
-            Loading...
-          </div>
-
-          <div
-            id="bnbChange"
-            class="market-change"
-          >
-            Updating market data
-          </div>
-
-          <p>
-            Current BNB market price
-          </p>
-
-        </article>
-
-
-        <!-- NETWORK -->
-        <article class="market-card network-card">
-
-          <div class="market-top">
-
-            <div class="network-icon">
-              <img
-                src="./assets/bnb-logo.png"
-                alt="BNB Chain"
-              />
-            </div>
-
-            <span class="live-status">
-              NETWORK
-            </span>
-
-          </div>
-
-          <div class="token-name">
-            IO Network
-          </div>
-
-          <div class="network-title">
-            Web3
-          </div>
-
-          <p>
-            Decentralized computing ecosystem
-          </p>
-
-        </article>
-
-      </div>
-
-    </section>
-
-
-    <!-- ABOUT IO -->
-    <section
-      class="section about-section"
-      id="about"
-    >
-
-      <div class="section-heading">
-
-        <div>
-          <span class="section-number">02</span>
-          <div class="section-kicker">ABOUT IO</div>
-          <h2>Built for decentralized compute.</h2>
-        </div>
-
-      </div>
-
-
-      <div class="about-grid">
-
-        <article class="content-card about-main">
-
-          <span class="card-label">
-            IO NETWORK
-          </span>
-
-          <h3>
-            Distributed GPU infrastructure for modern workloads.
-          </h3>
-
-          <p>
-            io.net is a decentralized computing network designed
-            to aggregate distributed GPU resources and make
-            computing capacity available through a unified
-            infrastructure layer.
-          </p>
-
-          <p>
-            The network is built around GPU providers, users of
-            compute resources and the economic mechanisms that
-            coordinate participation across the ecosystem.
-          </p>
-
-        </article>
-
-
-        <article class="content-card">
-
-          <div class="feature-icon">01</div>
-
-          <h3>
-            Decentralized compute
-          </h3>
-
-          <p>
-            Distributed hardware can be coordinated into
-            usable computing capacity for AI and machine
-            learning workloads.
-          </p>
-
-        </article>
-
-
-        <article class="content-card">
-
-          <div class="feature-icon">02</div>
-
-          <h3>
-            IO token utility
-          </h3>
-
-          <p>
-            $IO is the native token associated with the
-            IO ecosystem and supports payments, network
-            participation and economic coordination.
-          </p>
-
-        </article>
-
-
-        <article class="content-card">
-
-          <div class="feature-icon">03</div>
-
-          <h3>
-            Network participation
-          </h3>
-
-          <p>
-            The ecosystem connects compute users, hardware
-            providers and token holders through a shared
-            network economy.
-          </p>
-
-        </article>
-
-      </div>
-
-    </section>
-
-
-    <!-- BUYBACK -->
-    <section
-      class="section buyback-section"
-      id="buyback"
-    >
-
-      <div class="section-heading">
-
-        <div>
-          <span class="section-number">03</span>
-          <div class="section-kicker">ALLOCATION</div>
-          <h2>IO allocation portal</h2>
-
-          <p>
-            Review the configured participation limits and
-            estimate an allocation using the calculator.
-          </p>
-        </div>
-
-      </div>
-
-
-      <div class="buyback-layout">
-
-        <div class="content-card buyback-explanation">
-
-          <span class="card-label">
-            HOW THE PORTAL WORKS
-          </span>
-
-          <h3>
-            A simple allocation flow.
-          </h3>
-
-          <p>
-            The portal combines market information,
-            participation limits and an allocation calculator
-            into one streamlined interface.
-          </p>
-
-
-          <div class="steps">
-
-            <div class="step">
-
-              <span>01</span>
-
-              <div>
-                <strong>Choose an amount</strong>
-                <small>
-                  Select an amount between 5 and 500 BNB.
-                </small>
-              </div>
-
-            </div>
-
-
-            <div class="step">
-
-              <span>02</span>
-
-              <div>
-                <strong>Calculate</strong>
-                <small>
-                  Estimate the IO allocation and configured
-                  11% bonus.
-                </small>
-              </div>
-
-            </div>
-
-
-            <div class="step">
-
-              <span>03</span>
-
-              <div>
-                <strong>Review</strong>
-                <small>
-                  Check the allocation information before
-                  continuing.
-                </small>
-              </div>
-
-            </div>
-
-
-            <div class="step">
-
-              <span>04</span>
-
-              <div>
-                <strong>Track</strong>
-                <small>
-                  Review portal activity and allocation
-                  information.
-                </small>
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- CALCULATOR -->
-        <div class="calculator-card">
-
-          <div class="calculator-heading">
-
-            <div>
-              <span>ALLOCATION CALCULATOR</span>
-              <h3>Estimate your allocation</h3>
-            </div>
-
-            <span class="bonus-badge">
-              +11%
-            </span>
-
-          </div>
-
-
-          <label for="bnbAmount">
-            BNB amount
-          </label>
-
-          <div class="amount-input">
-
-            <input
-              id="bnbAmount"
-              type="number"
-              min="5"
-              max="500"
-              step="0.01"
-              placeholder="5"
-            />
-
-            <strong>BNB</strong>
-
-          </div>
-
-
-          <div
-            id="calculatorMessage"
-            class="calculator-message"
-          >
-            Minimum 5 BNB · Maximum 500 BNB
-          </div>
-
-
-          <div class="calculator-results">
-
-            <div>
-              <span>Base allocation</span>
-              <strong id="estimatedIO">0 IO</strong>
-            </div>
-
-            <div>
-              <span>11% bonus</span>
-              <strong id="bonusIO">0 IO</strong>
-            </div>
-
-            <div class="total-result">
-              <span>Total allocation</span>
-              <strong id="totalIO">0 IO</strong>
-            </div>
-
-          </div>
-
-
-          <button
-            id="calculateBtn"
-            class="primary-button calculator-button"
-            type="button"
-          >
-            Calculate allocation
-          </button>
-
-          <small class="calculator-note">
-            Estimate uses the current IO and BNB market prices.
-          </small>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- HOW IT WORKS -->
-    <section
-      class="section"
-      id="how"
-    >
-
-      <div class="section-heading">
-
-        <div>
-          <span class="section-number">04</span>
-          <div class="section-kicker">PROCESS</div>
-          <h2>How it works</h2>
-        </div>
-
-      </div>
-
-
-      <div class="process-grid">
-
-        <article class="process-card">
-          <span>01</span>
-          <h3>Select</h3>
-          <p>
-            Choose your BNB amount within the configured
-            participation range.
-          </p>
-        </article>
-
-        <article class="process-card">
-          <span>02</span>
-          <h3>Calculate</h3>
-          <p>
-            Estimate the IO amount and the configured
-            allocation bonus.
-          </p>
-        </article>
-
-        <article class="process-card">
-          <span>03</span>
-          <h3>Review</h3>
-          <p>
-            Review the displayed allocation information
-            before proceeding.
-          </p>
-        </article>
-
-        <article class="process-card">
-          <span>04</span>
-          <h3>Track</h3>
-          <p>
-            Use the portal activity section to review
-            allocation activity.
-          </p>
-        </article>
-
-      </div>
-
-    </section>
-
-
-    <!-- IO ECOSYSTEM -->
-    <section class="section ecosystem-section">
-
-      <div class="section-heading">
-
-        <div>
-          <span class="section-number">05</span>
-          <div class="section-kicker">ECOSYSTEM</div>
-          <h2>The IO ecosystem</h2>
-
-          <p>
-            Infrastructure, compute and token utility in one
-            decentralized network.
-          </p>
-        </div>
-
-      </div>
-
-
-      <div class="ecosystem-grid">
-
-        <article class="ecosystem-card large">
-
-          <span>GPU COMPUTE</span>
-
-          <h3>
-            Distributed resources.
-          </h3>
-
-          <p>
-            io.net brings distributed GPU resources together
-            so users can access computing capacity through
-            a unified network.
-          </p>
-
-        </article>
-
-
-        <article class="ecosystem-card">
-
-          <span>AI / ML</span>
-
-          <h3>
-            Compute for demanding workloads.
-          </h3>
-
-          <p>
-            The network is designed around workloads that
-            require scalable GPU infrastructure.
-          </p>
-
-        </article>
-
-
-        <article class="ecosystem-card">
-
-          <span>TOKEN</span>
-
-          <h3>
-            $IO utility.
-          </h3>
-
-          <p>
-            The IO token provides an economic layer connecting
-            participants across the network.
-          </p>
-
-        </article>
-
-      </div>
-
-    </section>
-
-
-    <!-- TOKEN ECONOMICS -->
-    <section class="section tokenomics-section">
-
-      <div class="section-heading">
-
-        <div>
-          <span class="section-number">06</span>
-          <div class="section-kicker">TOKEN ECONOMICS</div>
-          <h2>Designed around network demand.</h2>
-        </div>
-
-      </div>
-
-
-      <div class="tokenomics-grid">
-
-        <div class="tokenomics-card">
-          <span>01</span>
-          <strong>Demand</strong>
-          <p>
-            Network economics are connected to actual
-            computing demand.
-          </p>
-        </div>
-
-        <div class="tokenomics-card">
-          <span>02</span>
-          <strong>Rewards</strong>
-          <p>
-            Economic incentives support participation in
-            decentralized compute.
-          </p>
-        </div>
-
-        <div class="tokenomics-card">
-          <span>03</span>
-          <strong>Supply</strong>
-          <p>
-            io.net's current tokenomics introduce a
-            demand-driven incentive model.
-          </p>
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- ACTIVITY -->
-    <section
-      class="section activity-section"
-      id="activity"
-    >
-
-      <div class="section-heading">
-
-        <div>
-          <span class="section-number">07</span>
-          <div class="section-kicker">ACTIVITY</div>
-          <h2>Recent allocation activity</h2>
-          <p>
-            Sample portal activity interface.
-          </p>
-        </div>
-
-        <span class="activity-status">
-          <i></i>
-          PORTAL ACTIVITY
-        </span>
-
-      </div>
-
-
-      <div
-        id="activityGrid"
-        class="activity-grid"
-      ></div>
-
-    </section>
-
-
-    <!-- CONTRACT -->
-    <section class="section contract-section">
-
-      <div class="contract-card">
-
-        <div>
-
-          <span class="card-label">
-            CONFIGURED CONTRACT
-          </span>
-
-          <h3>
-            IO token contract
-          </h3>
-
-          <p>
-            BNB Smart Chain
-          </p>
-
-        </div>
-
-
-        <div class="contract-address">
-
-          <code id="contractAddress">
-            0x6b60465D676d5FF50F615F2EB5F88baFA56a42b3
-          </code>
-
-          <button
-            id="copyContract"
-            type="button"
-          >
-            Copy
-          </button>
-
-        </div>
-
-      </div>
-
-    </section>
-
-
-    <!-- FAQ -->
-    <section class="section faq-section">
-
-      <div class="section-heading">
-
-        <div>
-          <span class="section-number">08</span>
-          <div class="section-kicker">FAQ</div>
-          <h2>Frequently asked questions</h2>
-        </div>
-
-      </div>
-
-
-      <div class="faq-list">
-
-        <details>
-          <summary>
-            What is io.net?
-          </summary>
-
-          <p>
-            io.net is a decentralized computing network
-            focused on aggregating distributed GPU resources
-            for AI and machine-learning workloads.
-          </p>
-        </details>
-
-
-        <details>
-          <summary>
-            What is the IO token?
-          </summary>
-
-          <p>
-            $IO is the native token associated with the
-            IO ecosystem and supports economic activity
-            across the network.
-          </p>
-        </details>
-
-
-        <details>
-          <summary>
-            What does the allocation calculator do?
-          </summary>
-
-          <p>
-            It estimates an IO amount from the entered BNB
-            amount using the current displayed market prices
-            and the configured 11% allocation bonus.
-          </p>
-        </details>
-
-
-        <details>
-          <summary>
-            What are the participation limits?
-          </summary>
-
-          <p>
-            This portal is configured with a minimum of
-            5 BNB and a maximum of 500 BNB.
-          </p>
-        </details>
-
-      </div>
-
-    </section>
-
-  </main>
-
-
-  <!-- FOOTER -->
-  <footer>
-
-    <div class="footer-brand">
-
-      <span class="footer-logo">
-        <img
-          src="./assets/io-logo.png"
-          alt="IO"
-        />
-      </span>
 
       <div>
-        <strong>IO Network</strong>
-        <small>WEB3 ALLOCATION PORTAL</small>
+        <strong>500 BNB</strong>
+        <span>Maximum</span>
       </div>
 
-    </div>
-
-
-    <div class="footer-meta">
-      <span>BNB Smart Chain</span>
-      <span>IO Ecosystem</span>
-    </div>
-
-  </footer>
-
-
-  <!-- WALLET MODAL -->
-  <div
-    id="walletModal"
-    class="modal-overlay hidden"
-  >
-
-    <div class="wallet-modal">
-
-      <button
-        id="closeWallet"
-        class="modal-close"
-        type="button"
-      >
-        ×
-      </button>
-
-      <div class="modal-logo">
-        <img
-          src="./assets/io-logo.png"
-          alt="IO"
-        />
+      <div>
+        <strong>11%</strong>
+        <span>Bonus</span>
       </div>
+    </div>
 
-      <h2>Connect Wallet</h2>
+  </div>
+
+
+  <div class="hero-visual">
+
+    <div class="orbit one"></div>
+    <div class="orbit two"></div>
+    <div class="orbit three"></div>
+
+    <div class="hero-token">
+      <svg viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="48" fill="#050505"/>
+        <g fill="none" stroke="#fff" stroke-width="8"
+           stroke-linecap="round" stroke-linejoin="round">
+          <path d="M29 34h15"/>
+          <path d="M29 66h15"/>
+          <path d="M37 34v32"/>
+          <path d="M56 34h13c7 0 12 5 12 12v8c0 7-5 12-12 12H56"/>
+          <path d="M56 34v32"/>
+          <path d="M56 50h16"/>
+        </g>
+      </svg>
+    </div>
+
+    <span>IO NETWORK</span>
+
+  </div>
+
+</section>
+
+
+<section class="stats">
+
+  <article class="stat-card">
+    <span>MINIMUM PARTICIPATION</span>
+    <strong>5 BNB</strong>
+    <small>Configured portal limit</small>
+  </article>
+
+  <article class="stat-card">
+    <span>MAXIMUM PARTICIPATION</span>
+    <strong>500 BNB</strong>
+    <small>Configured portal limit</small>
+  </article>
+
+  <article class="stat-card">
+    <span>ALLOCATION BONUS</span>
+    <strong>11%</strong>
+    <small>Configured bonus rate</small>
+  </article>
+
+  <article class="stat-card">
+    <span>NETWORK</span>
+    <strong>BNB Smart Chain</strong>
+    <small>Configured network</small>
+  </article>
+
+</section>
+
+
+<section class="section" id="market">
+
+  <div class="section-heading">
+
+    <div>
+      <span class="section-number">01</span>
+      <div class="section-kicker">MARKET</div>
+
+      <h2>IO market</h2>
 
       <p>
-        Wallet connection is available from the portal
-        interface.
+        Current market information from Binance public market data.
+      </p>
+    </div>
+
+    <span class="live-pill">
+      <i></i> LIVE
+    </span>
+
+  </div>
+
+
+  <div class="market-grid">
+
+    <article class="market-card">
+
+      <div class="market-top">
+
+        <div class="token-icon">
+          <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="48" fill="#050505"/>
+            <g fill="none" stroke="#fff" stroke-width="8"
+               stroke-linecap="round" stroke-linejoin="round">
+              <path d="M29 34h15"/>
+              <path d="M29 66h15"/>
+              <path d="M37 34v32"/>
+              <path d="M56 34h13c7 0 12 5 12 12v8c0 7-5 12-12 12H56"/>
+              <path d="M56 34v32"/>
+              <path d="M56 50h16"/>
+            </g>
+          </svg>
+        </div>
+
+        <span class="live-status">
+          <i></i> LIVE
+        </span>
+
+      </div>
+
+      <div class="token-name">IO</div>
+
+      <div id="ioPrice" class="market-price">
+        Loading...
+      </div>
+
+      <div id="ioChange" class="market-change">
+        Updating market data
+      </div>
+
+      <p>Current IO market price</p>
+
+    </article>
+
+
+    <article class="market-card">
+
+      <div class="market-top">
+
+        <div class="token-icon">
+          <svg viewBox="0 0 100 100">
+            <rect width="100" height="100" rx="15" fill="#fff"/>
+
+            <g fill="#F3BA2F">
+              <path d="M50 11l13 13-13 13-13-13z"/>
+              <path d="M25 36l13-13 8 8-13 13z"/>
+              <path d="M75 36L62 23l13-13 13 13z"/>
+              <path d="M50 37l14 13-14 13-14-13z"/>
+              <path d="M25 55l13 13-8 8-13-13z"/>
+              <path d="M75 55l8 8-13 13-8-8z"/>
+              <path d="M50 70l13 13-13 13-13-13z"/>
+            </g>
+          </svg>
+        </div>
+
+        <span class="live-status">
+          <i></i> LIVE
+        </span>
+
+      </div>
+
+      <div class="token-name">BNB</div>
+
+      <div id="bnbPrice" class="market-price">
+        Loading...
+      </div>
+
+      <div id="bnbChange" class="market-change">
+        Updating market data
+      </div>
+
+      <p>Current BNB market price</p>
+
+    </article>
+
+
+    <article class="market-card network-card">
+
+      <div class="market-top">
+
+        <div class="network-icon">
+          BSC
+        </div>
+
+        <span class="live-status">
+          NETWORK
+        </span>
+
+      </div>
+
+      <div class="token-name">
+        IO Network
+      </div>
+
+      <div class="network-title">
+        Web3
+      </div>
+
+      <p>
+        Decentralized computing ecosystem
       </p>
 
+    </article>
+
+  </div>
+
+</section>
+
+
+<section class="section" id="about">
+
+  <div class="section-heading">
+
+    <div>
+      <span class="section-number">02</span>
+      <div class="section-kicker">ABOUT IO</div>
+
+      <h2>Built for decentralized compute.</h2>
+    </div>
+
+  </div>
+
+
+  <div class="about-grid">
+
+    <article class="content-card about-main">
+
+      <span class="card-label">
+        IO NETWORK
+      </span>
+
+      <h3>
+        Distributed GPU infrastructure
+        for modern workloads.
+      </h3>
+
+      <p>
+        io.net is a decentralized computing network designed
+        to aggregate distributed GPU resources and make
+        computing capacity available through a unified
+        infrastructure layer.
+      </p>
+
+      <p>
+        The ecosystem connects compute providers and users
+        through a network economy built around accessible
+        GPU capacity.
+      </p>
+
+    </article>
+
+
+    <article class="content-card">
+
+      <div class="feature-icon">01</div>
+
+      <h3>
+        Decentralized compute
+      </h3>
+
+      <p>
+        Distributed hardware can be coordinated into usable
+        computing capacity for AI and machine-learning workloads.
+      </p>
+
+    </article>
+
+
+    <article class="content-card">
+
+      <div class="feature-icon">02</div>
+
+      <h3>
+        IO token utility
+      </h3>
+
+      <p>
+        $IO is the native token associated with the IO ecosystem
+        and supports economic coordination across the network.
+      </p>
+
+    </article>
+
+
+    <article class="content-card">
+
+      <div class="feature-icon">03</div>
+
+      <h3>
+        Network participation
+      </h3>
+
+      <p>
+        The ecosystem connects compute users, hardware providers
+        and token holders through a shared network economy.
+      </p>
+
+    </article>
+
+  </div>
+
+</section>
+
+
+<section class="section buyback-section" id="buyback">
+
+  <div class="section-heading">
+
+    <div>
+      <span class="section-number">03</span>
+      <div class="section-kicker">ALLOCATION</div>
+
+      <h2>IO allocation portal</h2>
+
+      <p>
+        Understand the participation process and estimate an
+        allocation from the configured portal parameters.
+      </p>
+    </div>
+
+  </div>
+
+
+  <div class="buyback-layout">
+
+    <div class="content-card buyback-explanation">
+
+      <span class="card-label">
+        PARTICIPATION PROCESS
+      </span>
+
+      <h3>
+        A clear four-step flow.
+      </h3>
+
+      <p>
+        Review the amount, calculate the estimated IO allocation,
+        check the displayed details and only then proceed with
+        any transaction.
+      </p>
+
+
+      <div class="steps">
+
+        <div class="step">
+          <span>01</span>
+          <div>
+            <strong>Choose an amount</strong>
+            <small>
+              Select between 5 and 500 BNB.
+            </small>
+          </div>
+        </div>
+
+        <div class="step">
+          <span>02</span>
+          <div>
+            <strong>Calculate</strong>
+            <small>
+              See the estimated IO allocation and
+              11% configured bonus.
+            </small>
+          </div>
+        </div>
+
+        <div class="step">
+          <span>03</span>
+          <div>
+            <strong>Review</strong>
+            <small>
+              Check the BNB amount, IO estimate and
+              bonus before continuing.
+            </small>
+          </div>
+        </div>
+
+        <div class="step">
+          <span>04</span>
+          <div>
+            <strong>Confirm participation</strong>
+            <small>
+              Review the transaction details in your
+              wallet and confirm only when everything
+              is correct.
+            </small>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="calculator-card">
+
+      <div class="calculator-heading">
+
+        <div>
+          <span>ALLOCATION CALCULATOR</span>
+          <h3>Estimate your allocation</h3>
+        </div>
+
+        <span class="bonus-badge">
+          +11%
+        </span>
+
+      </div>
+
+
+      <label for="bnbAmount">
+        BNB amount
+      </label>
+
+      <div class="amount-input">
+
+        <input
+          id="bnbAmount"
+          type="number"
+          min="5"
+          max="500"
+          step="0.01"
+          placeholder="5"
+        >
+
+        <strong>BNB</strong>
+
+      </div>
+
+
+      <div id="calculatorMessage" class="calculator-message">
+        Minimum 5 BNB · Maximum 500 BNB
+      </div>
+
+
+      <div class="calculator-results">
+
+        <div>
+          <span>Base allocation</span>
+          <strong id="estimatedIO">0 IO</strong>
+        </div>
+
+        <div>
+          <span>11% bonus</span>
+          <strong id="bonusIO">0 IO</strong>
+        </div>
+
+        <div class="total-result">
+          <span>Total allocation</span>
+          <strong id="totalIO">0 IO</strong>
+        </div>
+
+      </div>
+
+
       <button
-        id="modalConnectWallet"
-        class="primary-button"
+        id="calculateBtn"
+        class="primary-button calculator-button"
         type="button"
       >
-        Connect Wallet
+        Calculate allocation
+      </button>
+
+      <small class="calculator-note">
+        Estimate uses the current displayed IO and BNB market prices.
+      </small>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="section" id="how">
+
+  <div class="section-heading">
+
+    <div>
+      <span class="section-number">04</span>
+      <div class="section-kicker">HOW TO PARTICIPATE</div>
+
+      <h2>Review every step.</h2>
+
+      <p>
+        A compact process designed to remain easy to follow
+        on desktop and mobile.
+      </p>
+    </div>
+
+  </div>
+
+
+  <div class="process-grid">
+
+    <article class="process-card">
+      <span>01</span>
+      <h3>Select</h3>
+      <p>
+        Choose your BNB amount within the configured
+        participation range.
+      </p>
+    </article>
+
+    <article class="process-card">
+      <span>02</span>
+      <h3>Calculate</h3>
+      <p>
+        Estimate the IO amount and the configured
+        11% allocation bonus.
+      </p>
+    </article>
+
+    <article class="process-card">
+      <span>03</span>
+      <h3>Review</h3>
+      <p>
+        Check the displayed allocation information
+        before continuing.
+      </p>
+    </article>
+
+    <article class="process-card">
+      <span>04</span>
+      <h3>Confirm</h3>
+      <p>
+        Review the transaction details in your wallet
+        and confirm only when everything is correct.
+      </p>
+    </article>
+
+  </div>
+
+</section>
+
+
+<section class="section ecosystem-section">
+
+  <div class="section-heading">
+
+    <div>
+      <span class="section-number">05</span>
+      <div class="section-kicker">ECOSYSTEM</div>
+
+      <h2>The IO ecosystem</h2>
+
+      <p>
+        Infrastructure, compute and token utility in one
+        decentralized network.
+      </p>
+    </div>
+
+  </div>
+
+
+  <div class="ecosystem-grid">
+
+    <article class="ecosystem-card large">
+      <span>GPU COMPUTE</span>
+      <h3>Distributed resources.</h3>
+      <p>
+        io.net brings distributed GPU resources together so
+        users can access computing capacity through a
+        unified network.
+      </p>
+    </article>
+
+    <article class="ecosystem-card">
+      <span>AI / ML</span>
+      <h3>Compute for demanding workloads.</h3>
+      <p>
+        The network is designed around workloads that
+        require scalable GPU infrastructure.
+      </p>
+    </article>
+
+    <article class="ecosystem-card">
+      <span>TOKEN</span>
+      <h3>$IO utility.</h3>
+      <p>
+        The IO token provides an economic layer connecting
+        participants across the ecosystem.
+      </p>
+    </article>
+
+  </div>
+
+</section>
+
+
+<section class="section tokenomics-section">
+
+  <div class="section-heading">
+
+    <div>
+      <span class="section-number">06</span>
+      <div class="section-kicker">TOKEN ECONOMICS</div>
+
+      <h2>Designed around network demand.</h2>
+    </div>
+
+  </div>
+
+
+  <div class="tokenomics-grid">
+
+    <div class="tokenomics-card">
+      <span>01</span>
+      <strong>Demand</strong>
+      <p>
+        Network economics are connected to actual
+        computing demand.
+      </p>
+    </div>
+
+    <div class="tokenomics-card">
+      <span>02</span>
+      <strong>Participation</strong>
+      <p>
+        Economic incentives connect participants across
+        decentralized compute.
+      </p>
+    </div>
+
+    <div class="tokenomics-card">
+      <span>03</span>
+      <strong>Utility</strong>
+      <p>
+        The token provides an economic coordination layer
+        for the ecosystem.
+      </p>
+    </div>
+
+  </div>
+
+</section>
+
+
+<section class="section activity-section" id="activity">
+
+  <div class="section-heading">
+
+    <div>
+      <span class="section-number">07</span>
+      <div class="section-kicker">ON-CHAIN ACTIVITY</div>
+
+      <h2>Recent activity</h2>
+
+      <p>
+        Recent transfer events read directly from the
+        configured BNB Smart Chain contract.
+      </p>
+    </div>
+
+    <span class="activity-status">
+      <i></i> LIVE
+    </span>
+
+  </div>
+
+
+  <div id="activityGrid" class="activity-grid">
+    <div class="activity-loading">
+      Loading recent on-chain activity...
+    </div>
+  </div>
+
+</section>
+
+
+<section class="section contract-section">
+
+  <div class="contract-card">
+
+    <div>
+
+      <span class="card-label">
+        CONFIGURED CONTRACT
+      </span>
+
+      <h3>
+        IO token contract
+      </h3>
+
+      <p>
+        BNB Smart Chain
+      </p>
+
+    </div>
+
+
+    <div class="contract-address">
+
+      <code id="contractAddress">
+        0x6b60465D676d5FF50F615F2EB5F88baFA56a42b3
+      </code>
+
+      <button id="copyContract" type="button">
+        Copy
       </button>
 
     </div>
 
   </div>
 
+</section>
+
+
+<section class="section faq-section">
+
+  <div class="section-heading">
+
+    <div>
+      <span class="section-number">08</span>
+      <div class="section-kicker">FAQ</div>
+
+      <h2>
+        Frequently asked questions
+      </h2>
+    </div>
+
+  </div>
+
+
+  <div class="faq-list">
+
+    <details>
+      <summary>What is io.net?</summary>
+      <p>
+        io.net is a decentralized computing network focused
+        on aggregating distributed GPU resources for AI and
+        machine-learning workloads.
+      </p>
+    </details>
+
+    <details>
+      <summary>What is the IO token?</summary>
+      <p>
+        $IO is the native token associated with the IO ecosystem
+        and supports economic activity across the network.
+      </p>
+    </details>
+
+    <details>
+      <summary>What does the calculator do?</summary>
+      <p>
+        It estimates an IO amount from the entered BNB amount
+        using the current displayed market prices and the
+        configured 11% allocation bonus.
+      </p>
+    </details>
+
+    <details>
+      <summary>
+        What are the participation limits?
+      </summary>
+      <p>
+        This portal is configured with a minimum of 5 BNB
+        and a maximum of 500 BNB.
+      </p>
+    </details>
+
+  </div>
+
+</section>
+
+</main>
+
+
+<footer>
+
+  <div class="footer-brand">
+
+    <span class="footer-logo">
+      <svg viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="48" fill="#050505"/>
+        <g fill="none" stroke="#fff" stroke-width="8"
+           stroke-linecap="round" stroke-linejoin="round">
+          <path d="M29 34h15"/>
+          <path d="M29 66h15"/>
+          <path d="M37 34v32"/>
+          <path d="M56 34h13c7 0 12 5 12 12v8c0 7-5 12-12 12H56"/>
+          <path d="M56 34v32"/>
+          <path d="M56 50h16"/>
+        </g>
+      </svg>
+    </span>
+
+    <div>
+      <strong>IO Network</strong>
+      <small>WEB3 ALLOCATION PORTAL</small>
+    </div>
+
+  </div>
+
+  <div class="footer-meta">
+    <span>BNB Smart Chain</span>
+    <span>IO Ecosystem</span>
+  </div>
+
+</footer>
+
+
+<div id="walletModal" class="modal-overlay hidden">
+
+  <div class="wallet-modal">
+
+    <button
+      id="closeWallet"
+      class="modal-close"
+      type="button"
+    >
+      ×
+    </button>
+
+    <div class="modal-logo">
+      <svg viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="48" fill="#050505"/>
+        <g fill="none" stroke="#fff" stroke-width="8"
+           stroke-linecap="round" stroke-linejoin="round">
+          <path d="M29 34h15"/>
+          <path d="M29 66h15"/>
+          <path d="M37 34v32"/>
+          <path d="M56 34h13c7 0 12 5 12 12v8c0 7-5 12-12 12H56"/>
+          <path d="M56 34v32"/>
+          <path d="M56 50h16"/>
+        </g>
+      </svg>
+    </div>
+
+    <h2>Connect Wallet</h2>
+
+    <p>
+      Wallet connection can be enabled when the portal
+      is connected to a supported wallet integration.
+    </p>
+
+    <button
+      id="modalConnectWallet"
+      class="primary-button"
+      type="button"
+    >
+      Connect Wallet
+    </button>
+
+  </div>
+
+</div>
 
 </div>
 
