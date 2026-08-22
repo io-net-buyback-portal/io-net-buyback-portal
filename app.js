@@ -1,104 +1,40 @@
 /* =========================================================
-   IO NETWORK BUYBACK PORTAL
-   Complete app.js
+   IO NETWORK — COMPLETE APP
 ========================================================= */
 
-const IO_SYMBOL = "IOUSDT";
-const BNB_SYMBOL = "BNBUSDT";
+const CONTRACT_ADDRESS =
+  "0x6b60465D676d5FF50F615F2EB5F88baFA56a42b3";
 
 const MIN_BNB = 5;
 const MAX_BNB = 500;
 const BONUS_RATE = 0.11;
 
-const CONTRACT_ADDRESS =
-  "0x6b60465D676d5FF50F615F2EB5F88baFA56a42b3";
-
 let ioPrice = 0;
 let bnbPrice = 0;
+let ioSymbol = null;
 
-const $ = (selector) => document.querySelector(selector);
+const $ = (selector) =>
+  document.querySelector(selector);
 
-/* =========================================================
-   TOKEN LOGOS
-========================================================= */
-
-const IO_LOGO = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-  <circle cx="100" cy="100" r="100" fill="#050505"/>
-  <g fill="none" stroke="#f4f5f7" stroke-width="16"
-     stroke-linecap="round" stroke-linejoin="round">
-    <path d="M58 70h30"/>
-    <path d="M58 130h30"/>
-    <path d="M74 70v60"/>
-    <path d="M112 70h25c10 0 18 8 18 18v24c0 10-8 18-18 18h-25"/>
-    <path d="M112 70v60"/>
-    <path d="M112 100h28"/>
-  </g>
-  <path d="M112 70h25c10 0 18 8 18 18v5"
-        fill="none"
-        stroke="#8e949c"
-        stroke-width="10"
-        stroke-linecap="round"/>
-</svg>
-`)}`;
-
-const BNB_LOGO = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-  <rect width="200" height="200" rx="22" fill="#ffffff"/>
-  <g fill="#F3BA2F">
-    <path d="M100 22l25 25-25 25-25-25z"/>
-    <path d="M53 69l25-25 16 16-25 25z"/>
-    <path d="M147 69l-16-16 25-25 25 25z"/>
-    <path d="M100 72l28 28-28 28-28-28z"/>
-    <path d="M53 109l25 25-16 16-25-25z"/>
-    <path d="M147 109l16 16-25 25-16-16z"/>
-    <path d="M100 139l25 25-25 25-25-25z"/>
-  </g>
-</svg>
-`)}`;
-
-/* =========================================================
-   INSTALL LOGOS
-========================================================= */
-
-function installLogos() {
-  document
-    .querySelectorAll(
-      'img[alt="IO"], img[alt="IO logo"], img[data-token="io"]'
-    )
-    .forEach((img) => {
-      img.src = IO_LOGO;
-      img.alt = "IO";
-      img.loading = "eager";
-    });
-
-  document
-    .querySelectorAll(
-      'img[alt="BNB"], img[alt="BNB logo"], img[alt="BNB Chain"], img[data-token="bnb"]'
-    )
-    .forEach((img) => {
-      img.src = BNB_LOGO;
-      img.alt = "BNB";
-      img.loading = "eager";
-    });
-}
 
 /* =========================================================
    BINANCE MARKET DATA
 ========================================================= */
 
-async function getBinanceTicker(symbol) {
-  const endpoints = [
-    `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`,
-    `https://data-api.binance.vision/api/v3/ticker/24hr?symbol=${symbol}`
+async function binanceJSON(path) {
+
+  const urls = [
+    `https://api.binance.com${path}`,
+    `https://data-api.binance.vision${path}`
   ];
 
-  let lastError = null;
+  let lastError;
 
-  for (const endpoint of endpoints) {
+  for (const url of urls) {
+
     try {
-      const response = await fetch(endpoint, {
-        method: "GET",
+
+      const response = await fetch(url, {
         cache: "no-store"
       });
 
@@ -106,130 +42,129 @@ async function getBinanceTicker(symbol) {
         throw new Error(`HTTP ${response.status}`);
       }
 
-      const data = await response.json();
-
-      const price = Number(data?.lastPrice);
-      const change = Number(data?.priceChangePercent);
-
-      if (!Number.isFinite(price) || price <= 0) {
-        throw new Error("Invalid Binance price");
-      }
-
-      return {
-        price,
-        change: Number.isFinite(change) ? change : null
-      };
+      return await response.json();
 
     } catch (error) {
+
       lastError = error;
+
     }
+
   }
 
-  throw lastError || new Error("Binance market data unavailable");
+  throw lastError ||
+    new Error("Market request failed");
 }
+
 
 /* =========================================================
-   MARKET PRICE DISPLAY
+   FIND IO/USDT SYMBOL
 ========================================================= */
 
-async function loadPrices() {
-  const ioPriceEl = $("#ioPrice");
-  const bnbPriceEl = $("#bnbPrice");
+async function resolveIOSymbol() {
 
-  if (!ioPriceEl || !bnbPriceEl) return;
-
-  try {
-    const [ioTicker, bnbTicker] =
-      await Promise.all([
-        getBinanceTicker(IO_SYMBOL),
-        getBinanceTicker(BNB_SYMBOL)
-      ]);
-
-    ioPrice = ioTicker.price;
-    bnbPrice = bnbTicker.price;
-
-    ioPriceEl.textContent =
-      formatUSD(ioPrice);
-
-    bnbPriceEl.textContent =
-      formatUSD(bnbPrice);
-
-    updateChange(
-      "#ioChange",
-      ioTicker.change
+  const data =
+    await binanceJSON(
+      "/api/v3/exchangeInfo"
     );
 
-    updateChange(
-      "#bnbChange",
-      bnbTicker.change
+  const symbols =
+    Array.isArray(data.symbols)
+      ? data.symbols
+      : [];
+
+  const match =
+    symbols.find(symbol =>
+
+      symbol.status === "TRADING" &&
+
+      symbol.quoteAsset === "USDT" &&
+
+      (
+        String(symbol.baseAsset).toUpperCase() === "IO" ||
+        String(symbol.baseAsset).toUpperCase() === "IONET"
+      )
+
     );
 
-    updateChange(
-      "#ioHeroChange",
-      ioTicker.change
+  if (!match) {
+
+    throw new Error(
+      "No active IO/USDT Binance spot pair found."
     );
 
-    updateChange(
-      "#bnbHeroChange",
-      bnbTicker.change
-    );
-
-    calculateAllocation();
-
-  } catch (error) {
-    console.warn(
-      "Binance market data unavailable:",
-      error
-    );
-
-    /*
-      Keep the last known valid prices if one exists.
-      Do not unnecessarily replace a working price
-      with "Unavailable".
-    */
-
-    if (!ioPrice) {
-      ioPriceEl.textContent = "Unavailable";
-    }
-
-    if (!bnbPrice) {
-      bnbPriceEl.textContent = "Unavailable";
-    }
-
-    const ioChange = $("#ioChange");
-    const bnbChange = $("#bnbChange");
-
-    if (ioChange && !ioPrice) {
-      ioChange.textContent =
-        "Market feed unavailable";
-    }
-
-    if (bnbChange && !bnbPrice) {
-      bnbChange.textContent =
-        "Market feed unavailable";
-    }
-
-    calculateAllocation();
   }
+
+  return match.symbol;
 }
 
-function updateChange(selector, value) {
+
+/* =========================================================
+   TICKER
+========================================================= */
+
+async function getTicker(symbol) {
+
+  return binanceJSON(
+    `/api/v3/ticker/24hr?symbol=${encodeURIComponent(symbol)}`
+  );
+
+}
+
+
+/* =========================================================
+   FORMAT USD
+========================================================= */
+
+function formatUSD(value) {
+
+  if (
+    !Number.isFinite(value) ||
+    value <= 0
+  ) {
+    return "Unavailable";
+  }
+
+  if (value < 1) {
+
+    return `$${value.toFixed(4)}`;
+
+  }
+
+  return new Intl.NumberFormat(
+    "en-US",
+    {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }
+  ).format(value);
+
+}
+
+
+/* =========================================================
+   24H CHANGE
+========================================================= */
+
+function setChange(selector, value) {
+
   const element = $(selector);
 
   if (!element) return;
 
-  if (
-    typeof value !== "number" ||
-    !Number.isFinite(value)
-  ) {
+  if (!Number.isFinite(value)) {
+
     element.textContent =
       "Market change unavailable";
 
-    element.classList.remove("negative");
     return;
+
   }
 
-  const sign = value >= 0 ? "+" : "";
+  const sign =
+    value >= 0 ? "+" : "";
 
   element.textContent =
     `${sign}${value.toFixed(2)}% 24h`;
@@ -238,402 +173,773 @@ function updateChange(selector, value) {
     "negative",
     value < 0
   );
+
 }
 
-function formatUSD(value) {
-  if (
-    !Number.isFinite(value) ||
-    value <= 0
-  ) {
-    return "—";
-  }
-
-  if (value >= 1000) {
-    return new Intl.NumberFormat(
-      "en-US",
-      {
-        style: "currency",
-        currency: "USD",
-        maximumFractionDigits: 2
-      }
-    ).format(value);
-  }
-
-  if (value >= 1) {
-    return new Intl.NumberFormat(
-      "en-US",
-      {
-        style: "currency",
-        currency: "USD",
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      }
-    ).format(value);
-  }
-
-  return `$${value.toFixed(4)}`;
-}
 
 /* =========================================================
-   ALLOCATION CALCULATOR
+   LOAD PRICES
 ========================================================= */
 
-function calculateAllocation() {
-  const input = $("#bnbAmount");
-  const message = $("#calculatorMessage");
+async function loadPrices() {
 
-  if (!input || !message) return;
+  try {
 
-  const amount = Number(input.value);
+    if (!ioSymbol) {
 
-  const estimatedIO = $("#estimatedIO");
-  const bonusIO = $("#bonusIO");
-  const totalIO = $("#totalIO");
+      ioSymbol =
+        await resolveIOSymbol();
 
-  if (
-    !amount ||
-    amount < MIN_BNB ||
-    amount > MAX_BNB ||
-    !ioPrice ||
-    !bnbPrice
-  ) {
-    if (estimatedIO) {
-      estimatedIO.textContent = "0 IO";
     }
 
-    if (bonusIO) {
-      bonusIO.textContent = "0 IO";
+    const [
+      io,
+      bnb
+    ] = await Promise.all([
+
+      getTicker(ioSymbol),
+
+      getTicker("BNBUSDT")
+
+    ]);
+
+
+    ioPrice =
+      Number(io.lastPrice);
+
+    bnbPrice =
+      Number(bnb.lastPrice);
+
+
+    const ioPriceElement =
+      $("#ioPrice");
+
+    const bnbPriceElement =
+      $("#bnbPrice");
+
+
+    if (ioPriceElement) {
+
+      ioPriceElement.textContent =
+        formatUSD(ioPrice);
+
     }
 
-    if (totalIO) {
-      totalIO.textContent = "0 IO";
+
+    if (bnbPriceElement) {
+
+      bnbPriceElement.textContent =
+        formatUSD(bnbPrice);
+
     }
 
-    if (amount && amount < MIN_BNB) {
-      message.textContent =
-        "Minimum participation is 5 BNB.";
-    } else if (amount > MAX_BNB) {
-      message.textContent =
-        "Maximum participation is 500 BNB.";
-    } else if (!ioPrice || !bnbPrice) {
-      message.textContent =
-        "Waiting for current market prices.";
-    } else {
-      message.textContent =
-        "Minimum 5 BNB · Maximum 500 BNB";
+
+    setChange(
+      "#ioChange",
+      Number(io.priceChangePercent)
+    );
+
+
+    setChange(
+      "#bnbChange",
+      Number(bnb.priceChangePercent)
+    );
+
+
+    calculateAllocation();
+
+
+  } catch (error) {
+
+    console.warn(
+      "Market data unavailable:",
+      error
+    );
+
+
+    if (!ioPrice) {
+
+      $("#ioPrice").textContent =
+        "Unavailable";
+
     }
 
-    return;
+
+    if (!bnbPrice) {
+
+      $("#bnbPrice").textContent =
+        "Unavailable";
+
+    }
+
+
+    calculateAllocation();
+
   }
 
-  message.textContent =
-    "Estimated allocation based on the current displayed market prices.";
-
-  const baseIO =
-    (amount * bnbPrice) / ioPrice;
-
-  const bonusIO =
-    baseIO * BONUS_RATE;
-
-  const totalIO =
-    baseIO + bonusIO;
-
-  if (estimatedIO) {
-    estimatedIO.textContent =
-      `${formatNumber(baseIO)} IO`;
-  }
-
-  if (bonusIO) {
-    bonusIO.textContent =
-      `${formatNumber(bonusIO)} IO`;
-  }
-
-  if (totalIO) {
-    totalIO.textContent =
-      `${formatNumber(totalIO)} IO`;
-  }
 }
 
+
+/* =========================================================
+   NUMBER FORMAT
+========================================================= */
+
 function formatNumber(value) {
+
   return new Intl.NumberFormat(
     "en-US",
     {
       maximumFractionDigits: 2
     }
   ).format(value);
+
 }
 
+
 /* =========================================================
-   ACTIVITY
-   Clean vertical activity list.
-   No DEMO / SAMPLE labels.
+   ALLOCATION CALCULATOR
 ========================================================= */
 
-const activity = [
-  {
-    amount: "4,096.73",
-    address: "0x5680...7f0c"
-  },
-  {
-    amount: "3,214.66",
-    address: "0x6a84...42fd"
-  },
-  {
-    amount: "1,918.27",
-    address: "0x34c1...0ea1"
-  },
-  {
-    amount: "6,758.34",
-    address: "0x95c3...ebdf"
-  },
-  {
-    amount: "8,421.15",
-    address: "0xb01b...4914"
-  },
-  {
-    amount: "5,672.91",
-    address: "0x709e...3635"
+function calculateAllocation() {
+
+  const input =
+    $("#bnbAmount");
+
+  const message =
+    $("#calculatorMessage");
+
+  if (!input || !message) return;
+
+
+  const amount =
+    Number(input.value);
+
+
+  if (!amount) {
+
+    $("#estimatedIO").textContent =
+      "0 IO";
+
+    $("#bonusIO").textContent =
+      "0 IO";
+
+    $("#totalIO").textContent =
+      "0 IO";
+
+    message.textContent =
+      "Minimum 5 BNB · Maximum 500 BNB";
+
+    return;
+
   }
+
+
+  if (amount < MIN_BNB) {
+
+    $("#estimatedIO").textContent =
+      "0 IO";
+
+    $("#bonusIO").textContent =
+      "0 IO";
+
+    $("#totalIO").textContent =
+      "0 IO";
+
+    message.textContent =
+      "Minimum participation is 5 BNB.";
+
+    return;
+
+  }
+
+
+  if (amount > MAX_BNB) {
+
+    $("#estimatedIO").textContent =
+      "0 IO";
+
+    $("#bonusIO").textContent =
+      "0 IO";
+
+    $("#totalIO").textContent =
+      "0 IO";
+
+    message.textContent =
+      "Maximum participation is 500 BNB.";
+
+    return;
+
+  }
+
+
+  if (!ioPrice || !bnbPrice) {
+
+    message.textContent =
+      "Waiting for current market prices.";
+
+    return;
+
+  }
+
+
+  const base =
+    (amount * bnbPrice) / ioPrice;
+
+
+  const bonus =
+    base * BONUS_RATE;
+
+
+  const total =
+    base + bonus;
+
+
+  $("#estimatedIO").textContent =
+    `${formatNumber(base)} IO`;
+
+
+  $("#bonusIO").textContent =
+    `${formatNumber(bonus)} IO`;
+
+
+  $("#totalIO").textContent =
+    `${formatNumber(total)} IO`;
+
+
+  message.textContent =
+    "Estimate calculated from current displayed market prices.";
+
+}
+
+
+/* =========================================================
+   ON-CHAIN ACTIVITY
+========================================================= */
+
+const TRANSFER_TOPIC =
+  "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a6b2f9b0e8";
+
+
+const RPC_URLS = [
+
+  "https://bsc-dataseed.binance.org/",
+
+  "https://bsc-dataseed1.defibit.io/",
+
+  "https://bsc-dataseed1.ninicoin.io/"
+
 ];
 
-function activityRow(item) {
-  return `
-    <article class="activity-row">
 
-      <div class="activity-icon">
-        ↗
-      </div>
+async function rpc(
+  method,
+  params
+) {
 
-      <div class="activity-main">
-        <strong>
-          ${item.amount} IO
-        </strong>
+  let lastError;
 
-        <span>
-          ${item.address}
-        </span>
-      </div>
 
-      <div class="activity-status">
-        <strong>ALLOCATED</strong>
-        <small>Confirmed</small>
-      </div>
+  for (const url of RPC_URLS) {
 
-    </article>
-  `;
+    try {
+
+      const response =
+        await fetch(
+          url,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json"
+            },
+            body: JSON.stringify({
+              jsonrpc: "2.0",
+              id: Date.now(),
+              method,
+              params
+            }),
+            cache: "no-store"
+          }
+        );
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          `RPC HTTP ${response.status}`
+        );
+
+      }
+
+
+      const data =
+        await response.json();
+
+
+      if (data.error) {
+
+        throw new Error(
+          data.error.message
+        );
+
+      }
+
+
+      return data.result;
+
+
+    } catch (error) {
+
+      lastError = error;
+
+    }
+
+  }
+
+
+  throw (
+    lastError ||
+    new Error(
+      "BSC RPC unavailable"
+    )
+  );
+
 }
 
-function renderActivity() {
-  const container =
-    $("#activityGrid") ||
-    $("#activityFeed");
-
-  if (!container) return;
-
-  container.innerHTML =
-    activity
-      .map(activityRow)
-      .join("");
-}
 
 /* =========================================================
-   CONTRACT COPY
+   ADDRESS HELPERS
 ========================================================= */
 
-function setupContractCopy() {
-  const copyButton =
+function cleanAddress(topic) {
+
+  return (
+    "0x" +
+    topic.slice(-40)
+  );
+
+}
+
+
+function shortAddress(address) {
+
+  return (
+    `${address.slice(0, 6)}...${address.slice(-4)}`
+  );
+
+}
+
+
+function hexToNumber(hex) {
+
+  return Number.parseInt(
+    hex,
+    16
+  );
+
+}
+
+
+/* =========================================================
+   LOAD REAL TRANSFER ACTIVITY
+========================================================= */
+
+async function loadActivity() {
+
+  const grid =
+    $("#activityGrid");
+
+  if (!grid) return;
+
+
+  grid.innerHTML = `
+    <div class="activity-loading">
+      Loading recent on-chain activity...
+    </div>
+  `;
+
+
+  try {
+
+    const latestHex =
+      await rpc(
+        "eth_blockNumber",
+        []
+      );
+
+
+    const latest =
+      hexToNumber(
+        latestHex
+      );
+
+
+    const from =
+      Math.max(
+        0,
+        latest - 2500
+      );
+
+
+    const logs =
+      await rpc(
+        "eth_getLogs",
+        [
+          {
+            address:
+              CONTRACT_ADDRESS,
+
+            fromBlock:
+              "0x" +
+              from.toString(16),
+
+            toBlock:
+              latestHex,
+
+            topics:
+              [TRANSFER_TOPIC]
+          }
+        ]
+      );
+
+
+    const recent =
+      Array.isArray(logs)
+        ? logs.slice(-8).reverse()
+        : [];
+
+
+    if (!recent.length) {
+
+      grid.innerHTML = `
+        <div class="activity-empty">
+          No recent on-chain transfer events found
+          for this contract.
+        </div>
+      `;
+
+      return;
+
+    }
+
+
+    grid.innerHTML =
+      recent.map(log => {
+
+        const fromAddress =
+          cleanAddress(
+            log.topics[1]
+          );
+
+
+        const toAddress =
+          cleanAddress(
+            log.topics[2]
+          );
+
+
+        const amountRaw =
+          BigInt(log.data);
+
+
+        const amount =
+          Number(amountRaw) /
+          1e18;
+
+
+        return `
+          <article class="activity-row">
+
+            <div class="activity-icon">
+              ↗
+            </div>
+
+            <div class="activity-main">
+
+              <strong>
+                ${
+                  Number.isFinite(amount)
+                    ? formatNumber(amount)
+                    : "Transfer"
+                } IO
+              </strong>
+
+              <span>
+                ${shortAddress(fromAddress)}
+                →
+                ${shortAddress(toAddress)}
+              </span>
+
+            </div>
+
+            <div class="activity-meta">
+
+              <strong>
+                ON-CHAIN
+              </strong>
+
+              <small>
+                Block ${
+                  hexToNumber(
+                    log.blockNumber
+                  )
+                }
+              </small>
+
+            </div>
+
+          </article>
+        `;
+
+      }).join("");
+
+
+  } catch (error) {
+
+    console.warn(
+      "On-chain activity unavailable:",
+      error
+    );
+
+
+    grid.innerHTML = `
+      <div class="activity-empty">
+        On-chain activity is temporarily unavailable.
+        The portal will retry automatically.
+      </div>
+    `;
+
+  }
+
+}
+
+
+/* =========================================================
+   COPY CONTRACT
+========================================================= */
+
+function setupCopy() {
+
+  const button =
     $("#copyContract");
 
-  if (!copyButton) return;
+  if (!button) return;
 
-  copyButton.addEventListener(
+
+  button.addEventListener(
     "click",
     async () => {
+
       try {
+
         await navigator.clipboard.writeText(
           CONTRACT_ADDRESS
         );
 
-        copyButton.textContent =
+
+        button.textContent =
           "Copied";
 
-        setTimeout(() => {
-          copyButton.textContent =
-            "Copy";
-        }, 1600);
+
+        setTimeout(
+          () => {
+            button.textContent =
+              "Copy";
+          },
+          1500
+        );
+
 
       } catch {
-        copyButton.textContent =
+
+        button.textContent =
           "Copy failed";
 
-        setTimeout(() => {
-          copyButton.textContent =
-            "Copy";
-        }, 1600);
+
+        setTimeout(
+          () => {
+            button.textContent =
+              "Copy";
+          },
+          1500
+        );
+
       }
+
     }
   );
+
 }
 
-/* =========================================================
-   WALLET MODAL
-========================================================= */
-
-const walletModal =
-  $("#walletModal");
-
-function openWallet() {
-  if (walletModal) {
-    walletModal.classList.remove(
-      "hidden"
-    );
-  }
-}
-
-function closeWallet() {
-  if (walletModal) {
-    walletModal.classList.add(
-      "hidden"
-    );
-  }
-}
-
-function setupWallet() {
-  const connectWallet =
-    $("#connectWallet");
-
-  const modalConnectWallet =
-    $("#modalConnectWallet");
-
-  const closeWalletButton =
-    $("#closeWallet");
-
-  if (connectWallet) {
-    connectWallet.addEventListener(
-      "click",
-      openWallet
-    );
-  }
-
-  if (modalConnectWallet) {
-    modalConnectWallet.addEventListener(
-      "click",
-      () => {
-        modalConnectWallet.textContent =
-          "Wallet connection unavailable";
-      }
-    );
-  }
-
-  if (closeWalletButton) {
-    closeWalletButton.addEventListener(
-      "click",
-      closeWallet
-    );
-  }
-
-  if (walletModal) {
-    walletModal.addEventListener(
-      "click",
-      (event) => {
-        if (
-          event.target === walletModal
-        ) {
-          closeWallet();
-        }
-      }
-    );
-  }
-}
 
 /* =========================================================
    THEME
 ========================================================= */
 
 function setupTheme() {
-  const themeButton =
+
+  const button =
     $("#themeToggle");
 
-  if (!themeButton) return;
+  if (!button) return;
 
-  themeButton.addEventListener(
+
+  button.addEventListener(
     "click",
     () => {
+
       document.body.classList.toggle(
         "light"
       );
 
-      document.body.classList.toggle(
-        "light-mode"
-      );
 
-      const isLight =
+      button.textContent =
         document.body.classList.contains(
           "light"
-        );
+        )
+          ? "☼"
+          : "☾";
 
-      themeButton.textContent =
-        isLight ? "☾" : "☼";
     }
   );
+
 }
+
 
 /* =========================================================
-   CALCULATOR EVENTS
+   WALLET MODAL
 ========================================================= */
 
-function setupCalculator() {
-  const bnbInput =
-    $("#bnbAmount");
+function setupWallet() {
 
-  const calculateButton =
-    $("#calculateBtn");
+  const modal =
+    $("#walletModal");
 
-  if (bnbInput) {
-    bnbInput.addEventListener(
-      "input",
-      calculateAllocation
+  const open =
+    $("#connectWallet");
+
+  const close =
+    $("#closeWallet");
+
+  const modalButton =
+    $("#modalConnectWallet");
+
+
+  const show = () => {
+
+    modal?.classList.remove(
+      "hidden"
     );
-  }
 
-  if (calculateButton) {
-    calculateButton.addEventListener(
-      "click",
-      calculateAllocation
+  };
+
+
+  const hide = () => {
+
+    modal?.classList.add(
+      "hidden"
     );
-  }
+
+  };
+
+
+  open?.addEventListener(
+    "click",
+    show
+  );
+
+
+  close?.addEventListener(
+    "click",
+    hide
+  );
+
+
+  modal?.addEventListener(
+    "click",
+    event => {
+
+      if (
+        event.target === modal
+      ) {
+
+        hide();
+
+      }
+
+    }
+  );
+
+
+  modalButton?.addEventListener(
+    "click",
+    () => {
+
+      modalButton.textContent =
+        "Wallet connection unavailable";
+
+    }
+  );
+
 }
+
 
 /* =========================================================
    INITIALIZE
 ========================================================= */
 
-function initialize() {
-  installLogos();
-  renderActivity();
-  setupContractCopy();
-  setupWallet();
+function init() {
+
+  setupCopy();
+
   setupTheme();
-  setupCalculator();
+
+  setupWallet();
+
+
+  $("#bnbAmount")?.addEventListener(
+    "input",
+    calculateAllocation
+  );
+
+
+  $("#calculateBtn")?.addEventListener(
+    "click",
+    calculateAllocation
+  );
+
+
   loadPrices();
 
-  /*
-    Refresh market prices every minute.
-  */
+  loadActivity();
+
+
   setInterval(
     loadPrices,
     60000
   );
+
+
+  setInterval(
+    loadActivity,
+    120000
+  );
+
 }
+
 
 if (
   document.readyState ===
   "loading"
 ) {
+
   document.addEventListener(
     "DOMContentLoaded",
-    initialize
+    init
   );
+
 } else {
-  initialize();
+
+  init();
+
 }
