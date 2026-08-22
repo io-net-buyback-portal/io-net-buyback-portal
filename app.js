@@ -13,41 +13,22 @@ const IO_CONTRACT =
 
 const bnbAmount = document.getElementById("bnbAmount");
 const calculateBtn = document.getElementById("calculateBtn");
-const allocationResult =
-  document.getElementById("allocationResult");
+const allocationResult = document.getElementById("allocationResult");
+const calculatorMessage = document.getElementById("calculatorMessage");
 
-const calculatorMessage =
-  document.getElementById("calculatorMessage");
+const estimatedIO = document.getElementById("estimatedIO");
+const bonusIO = document.getElementById("bonusIO");
+const totalIO = document.getElementById("totalIO");
 
-const estimatedIO =
-  document.getElementById("estimatedIO");
+const connectWallet = document.getElementById("connectWallet");
+const walletModal = document.getElementById("walletModal");
+const closeWallet = document.getElementById("closeWallet");
+const modalConnectWallet = document.getElementById("modalConnectWallet");
 
-const bonusIO =
-  document.getElementById("bonusIO");
+const themeToggle = document.getElementById("themeToggle");
 
-const totalIO =
-  document.getElementById("totalIO");
-
-const connectWallet =
-  document.getElementById("connectWallet");
-
-const walletModal =
-  document.getElementById("walletModal");
-
-const closeWallet =
-  document.getElementById("closeWallet");
-
-const modalConnectWallet =
-  document.getElementById("modalConnectWallet");
-
-const themeToggle =
-  document.getElementById("themeToggle");
-
-const ioPriceElement =
-  document.getElementById("ioPrice");
-
-const bnbPriceElement =
-  document.getElementById("bnbPrice");
+const ioPriceElement = document.getElementById("ioPrice");
+const bnbPriceElement = document.getElementById("bnbPrice");
 
 const transactionList =
   document.getElementById("transactionList");
@@ -64,126 +45,88 @@ function formatNumber(value, decimals = 2) {
   });
 }
 
-
 function shortenAddress(address) {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
-
 function randomHex(length) {
-  const characters =
-    "0123456789abcdef";
-
-  let output = "";
+  const chars = "0123456789abcdef";
+  let result = "";
 
   for (let i = 0; i < length; i++) {
-    output += characters[
-      Math.floor(
-        Math.random() * characters.length
-      )
-    ];
+    result += chars[Math.floor(Math.random() * chars.length)];
   }
 
-  return output;
+  return result;
 }
-
 
 function randomWallet() {
-  return (
-    "0x" +
-    randomHex(40)
-  );
+  return `0x${randomHex(40)}`;
 }
-
 
 function randomHash() {
-  return (
-    "0x" +
-    randomHex(64)
-  );
+  return `0x${randomHex(64)}`;
 }
 
 
 // =====================================================
-// ALLOCATION CALCULATOR
+// CALCULATOR
 // =====================================================
 
-calculateBtn.addEventListener("click", () => {
+if (calculateBtn) {
 
-  const amount =
-    Number(bnbAmount.value);
+  calculateBtn.addEventListener("click", () => {
 
-  calculatorMessage.textContent = "";
+    const amount = Number(bnbAmount.value);
 
-  allocationResult.classList.add(
-    "hidden"
-  );
+    calculatorMessage.textContent = "";
+    allocationResult.classList.add("hidden");
 
+    if (!amount || Number.isNaN(amount)) {
+      calculatorMessage.textContent =
+        "Enter a BNB amount.";
+      return;
+    }
 
-  if (!amount || Number.isNaN(amount)) {
+    if (amount < MIN_BNB) {
+      calculatorMessage.textContent =
+        `Minimum participation is ${MIN_BNB} BNB.`;
+      return;
+    }
 
-    calculatorMessage.textContent =
-      "Enter a BNB amount.";
+    if (amount > MAX_BNB) {
+      calculatorMessage.textContent =
+        `Maximum participation is ${MAX_BNB} BNB.`;
+      return;
+    }
 
-    return;
-  }
+    const estimated = amount * IO_PER_BNB;
+    const bonus = estimated * BONUS_RATE;
+    const total = estimated + bonus;
 
+    estimatedIO.textContent =
+      `${formatNumber(estimated)} IO`;
 
-  if (amount < MIN_BNB) {
+    bonusIO.textContent =
+      `+${formatNumber(bonus)} IO`;
 
-    calculatorMessage.textContent =
-      `Minimum participation is ${MIN_BNB} BNB.`;
+    totalIO.textContent =
+      `${formatNumber(total)} IO`;
 
-    return;
-  }
+    allocationResult.classList.remove("hidden");
+  });
 
+}
 
-  if (amount > MAX_BNB) {
+if (bnbAmount) {
 
-    calculatorMessage.textContent =
-      `Maximum participation is ${MAX_BNB} BNB.`;
-
-    return;
-  }
-
-
-  const estimated =
-    amount * IO_PER_BNB;
-
-  const bonus =
-    estimated * BONUS_RATE;
-
-  const total =
-    estimated + bonus;
-
-
-  estimatedIO.textContent =
-    `${formatNumber(estimated)} IO`;
-
-  bonusIO.textContent =
-    `+${formatNumber(bonus)} IO`;
-
-  totalIO.textContent =
-    `${formatNumber(total)} IO`;
-
-
-  allocationResult.classList.remove(
-    "hidden"
-  );
-
-});
-
-
-bnbAmount.addEventListener(
-  "keydown",
-  (event) => {
-
+  bnbAmount.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
       calculateBtn.click();
     }
+  });
 
-  }
-);
+}
 
 
 // =====================================================
@@ -191,38 +134,25 @@ bnbAmount.addEventListener(
 // =====================================================
 
 function openWalletModal() {
-
   if (walletModal) {
-    walletModal.classList.remove(
-      "hidden"
-    );
+    walletModal.classList.remove("hidden");
   }
-
 }
-
 
 function closeWalletModal() {
-
   if (walletModal) {
-    walletModal.classList.add(
-      "hidden"
-    );
+    walletModal.classList.add("hidden");
   }
-
 }
 
+if (connectWallet) {
 
-connectWallet.addEventListener(
-  "click",
-  async () => {
+  connectWallet.addEventListener("click", async () => {
 
     if (!window.ethereum) {
-
       openWalletModal();
-
       return;
     }
-
 
     try {
 
@@ -231,29 +161,18 @@ connectWallet.addEventListener(
           method: "eth_requestAccounts"
         });
 
-
-      if (
-        accounts &&
-        accounts.length
-      ) {
-
+      if (accounts.length) {
         connectWallet.textContent =
           shortenAddress(accounts[0]);
-
       }
 
     } catch (error) {
-
-      console.error(
-        "Wallet connection failed:",
-        error
-      );
-
+      console.error(error);
     }
 
-  }
-);
+  });
 
+}
 
 if (modalConnectWallet) {
 
@@ -262,13 +181,10 @@ if (modalConnectWallet) {
     async () => {
 
       if (!window.ethereum) {
-
         modalConnectWallet.textContent =
           "Wallet not detected";
-
         return;
       }
-
 
       try {
 
@@ -277,26 +193,16 @@ if (modalConnectWallet) {
             method: "eth_requestAccounts"
           });
 
-
-        if (
-          accounts &&
-          accounts.length
-        ) {
+        if (accounts.length) {
 
           connectWallet.textContent =
             shortenAddress(accounts[0]);
 
           closeWalletModal();
-
         }
 
       } catch (error) {
-
-        console.error(
-          "Wallet connection failed:",
-          error
-        );
-
+        console.error(error);
       }
 
     }
@@ -304,16 +210,12 @@ if (modalConnectWallet) {
 
 }
 
-
 if (closeWallet) {
-
   closeWallet.addEventListener(
     "click",
     closeWalletModal
   );
-
 }
-
 
 if (walletModal) {
 
@@ -321,12 +223,8 @@ if (walletModal) {
     "click",
     (event) => {
 
-      if (
-        event.target === walletModal
-      ) {
-
+      if (event.target === walletModal) {
         closeWalletModal();
-
       }
 
     }
@@ -341,137 +239,113 @@ if (walletModal) {
 
 let lightMode = false;
 
+if (themeToggle) {
 
-themeToggle.addEventListener(
-  "click",
-  () => {
+  themeToggle.addEventListener("click", () => {
 
     lightMode = !lightMode;
 
+    document.documentElement.classList.toggle(
+      "light-mode",
+      lightMode
+    );
 
-    if (lightMode) {
+    themeToggle.textContent =
+      lightMode ? "☾" : "☼";
 
-      document.documentElement.style.setProperty(
-        "--bg",
-        "#f4f6fb"
-      );
+  });
 
-      document.documentElement.style.setProperty(
-        "--bg-soft",
-        "#ffffff"
-      );
+}
 
-      document.documentElement.style.setProperty(
-        "--panel",
-        "#ffffff"
-      );
 
-      document.documentElement.style.setProperty(
-        "--panel-2",
-        "#f7f8fc"
-      );
+// =====================================================
+// LIVE MARKET PRICE
+// =====================================================
 
-      document.documentElement.style.setProperty(
-        "--text",
-        "#111827"
-      );
+async function getPriceFromBinance() {
 
-      document.documentElement.style.setProperty(
-        "--muted",
-        "#667085"
-      );
+  const response =
+    await fetch(
+      "https://api.binance.com/api/v3/ticker/price?symbol=IOUSDT"
+    );
 
-      document.documentElement.style.setProperty(
-        "--faint",
-        "#98a2b3"
-      );
-
-      document.documentElement.style.setProperty(
-        "--line",
-        "rgba(17,24,39,.10)"
-      );
-
-      themeToggle.textContent = "☾";
-
-    } else {
-
-      document.documentElement.style.setProperty(
-        "--bg",
-        "#070914"
-      );
-
-      document.documentElement.style.setProperty(
-        "--bg-soft",
-        "#0b0e1b"
-      );
-
-      document.documentElement.style.setProperty(
-        "--panel",
-        "#0f1322"
-      );
-
-      document.documentElement.style.setProperty(
-        "--panel-2",
-        "#121729"
-      );
-
-      document.documentElement.style.setProperty(
-        "--text",
-        "#f7f8ff"
-      );
-
-      document.documentElement.style.setProperty(
-        "--muted",
-        "#9299b0"
-      );
-
-      document.documentElement.style.setProperty(
-        "--faint",
-        "#656d84"
-      );
-
-      document.documentElement.style.setProperty(
-        "--line",
-        "rgba(255,255,255,.09)"
-      );
-
-      themeToggle.textContent = "☼";
-
-    }
-
+  if (!response.ok) {
+    throw new Error("Binance price unavailable");
   }
-);
+
+  const data = await response.json();
+
+  return Number(data.price);
+}
 
 
-// =====================================================
-// MARKET PRICES
-// =====================================================
+async function getPriceFromCoinGecko() {
+
+  const response =
+    await fetch(
+      "https://api.coingecko.com/api/v3/simple/price?ids=io-net&vs_currencies=usd"
+    );
+
+  if (!response.ok) {
+    throw new Error("CoinGecko price unavailable");
+  }
+
+  const data = await response.json();
+
+  if (!data["io-net"]?.usd) {
+    throw new Error("IO price unavailable");
+  }
+
+  return Number(data["io-net"].usd);
+}
+
+
+async function getBNBPrice() {
+
+  const response =
+    await fetch(
+      "https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT"
+    );
+
+  if (!response.ok) {
+    throw new Error("BNB price unavailable");
+  }
+
+  const data = await response.json();
+
+  return Number(data.price);
+}
+
 
 async function loadMarketPrices() {
 
+  if (ioPriceElement) {
+    ioPriceElement.textContent = "Loading...";
+  }
+
+  if (bnbPriceElement) {
+    bnbPriceElement.textContent = "Loading...";
+  }
+
   try {
 
-    const response =
-      await fetch(
-        "https://api.coingecko.com/api/v3/simple/price?ids=io-net,bnb&vs_currencies=usd"
-      );
+    let ioPrice;
 
-
-    if (!response.ok) {
-      throw new Error(
-        "Market request failed"
-      );
+    try {
+      ioPrice =
+        await getPriceFromBinance();
+    } catch {
+      ioPrice =
+        await getPriceFromCoinGecko();
     }
 
+    const bnbPrice =
+      await getBNBPrice();
 
-    const data =
-      await response.json();
-
-
-    if (data["io-net"]?.usd) {
+    if (ioPriceElement) {
 
       ioPriceElement.textContent =
-        `$${data["io-net"].usd.toLocaleString(
+        `$${ioPrice.toLocaleString(
           undefined,
           {
             minimumFractionDigits: 2,
@@ -481,11 +355,10 @@ async function loadMarketPrices() {
 
     }
 
-
-    if (data.bnb?.usd) {
+    if (bnbPriceElement) {
 
       bnbPriceElement.textContent =
-        `$${data.bnb.usd.toLocaleString(
+        `$${bnbPrice.toLocaleString(
           undefined,
           {
             minimumFractionDigits: 2,
@@ -498,20 +371,21 @@ async function loadMarketPrices() {
   } catch (error) {
 
     console.error(
-      "Unable to load market prices:",
+      "Market price error:",
       error
     );
 
-    ioPriceElement.textContent =
-      "Unavailable";
+    if (ioPriceElement) {
+      ioPriceElement.textContent = "Unavailable";
+    }
 
-    bnbPriceElement.textContent =
-      "Unavailable";
+    if (bnbPriceElement) {
+      bnbPriceElement.textContent = "Unavailable";
+    }
 
   }
 
 }
-
 
 loadMarketPrices();
 
@@ -522,7 +396,145 @@ setInterval(
 
 
 // =====================================================
-// SIMULATED ACTIVITY INTERFACE
+// ABOUT / BUYBACK INFORMATION
+// =====================================================
+
+function addInformationSection() {
+
+  if (document.getElementById("ioInformation")) {
+    return;
+  }
+
+  const section =
+    document.createElement("section");
+
+  section.id = "ioInformation";
+  section.className = "information-section";
+
+  section.innerHTML = `
+
+    <div class="information-grid">
+
+      <article class="information-card">
+
+        <span class="information-label">
+          ABOUT IO
+        </span>
+
+        <h2>
+          What is IO?
+        </h2>
+
+        <p>
+          IO is the native token of io.net's decentralized
+          GPU computing network. The network brings together
+          distributed GPU resources for AI and machine-learning
+          workloads.
+        </p>
+
+        <p>
+          The IO token is used within the ecosystem for
+          computing payments, provider staking and governance.
+        </p>
+
+        <a
+          href="https://io.net/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="information-link"
+        >
+          Learn about io.net ↗
+        </a>
+
+      </article>
+
+
+      <article class="information-card">
+
+        <span class="information-label">
+          BUYBACK
+        </span>
+
+        <h2>
+          Why a buyback?
+        </h2>
+
+        <p>
+          A buyback is a market mechanism in which allocated
+          funds are used to purchase tokens. The structure,
+          timing and treatment of purchased tokens depend on
+          the rules of the particular program.
+        </p>
+
+        <p>
+          A well-designed program can provide a transparent
+          framework for communicating participation, allocation
+          and market activity to its community.
+        </p>
+
+      </article>
+
+
+      <article class="information-card wide">
+
+        <span class="information-label">
+          IO ECOSYSTEM
+        </span>
+
+        <h2>
+          Built around decentralized compute.
+        </h2>
+
+        <p>
+          io.net is focused on making GPU computing more
+          accessible for AI teams by aggregating distributed
+          computing resources into an on-demand network.
+        </p>
+
+        <div class="information-points">
+
+          <div>
+            <strong>01</strong>
+            <span>Distributed GPU infrastructure</span>
+          </div>
+
+          <div>
+            <strong>02</strong>
+            <span>AI and machine-learning workloads</span>
+          </div>
+
+          <div>
+            <strong>03</strong>
+            <span>IO token utility</span>
+          </div>
+
+        </div>
+
+      </article>
+
+    </div>
+
+  `;
+
+  const footer =
+    document.querySelector("footer");
+
+  if (footer) {
+    footer.parentNode.insertBefore(
+      section,
+      footer
+    );
+  } else {
+    document.body.appendChild(section);
+  }
+
+}
+
+addInformationSection();
+
+
+// =====================================================
+// ACTIVITY FEED
 // =====================================================
 
 const simulatedActivity = [
@@ -573,29 +585,12 @@ const simulatedActivity = [
     amount: "6,758.34",
     wallet: randomWallet(),
     hash: randomHash()
-  },
-
-  {
-    amount: "2,917.48",
-    wallet: randomWallet(),
-    hash: randomHash()
-  },
-
-  {
-    amount: "9,104.26",
-    wallet: randomWallet(),
-    hash: randomHash()
   }
 
 ];
 
-
 let activityIndex = 0;
 
-
-// =====================================================
-// CREATE ACTIVITY CARD
-// =====================================================
 
 function createActivityCard(data) {
 
@@ -603,20 +598,15 @@ function createActivityCard(data) {
     document.createElement("div");
 
   item.className =
-    "activityItem";
-
-
-  item.style.opacity = "0";
-
-  item.style.transform =
-    "translateY(14px)";
-
+    "activityItem activity-enter";
 
   item.innerHTML = `
 
-    <span>↗</span>
+    <span class="activity-arrow">
+      ↗
+    </span>
 
-    <div>
+    <div class="activity-content">
 
       <b>
         ${data.amount} IO
@@ -626,14 +616,7 @@ function createActivityCard(data) {
         ${shortenAddress(data.wallet)}
       </small>
 
-      <small
-        style="
-          color:#656d84;
-          font-size:9px;
-          font-weight:600;
-          margin-top:3px;
-        "
-      >
+      <small class="activity-hash">
         ${shortenAddress(data.hash)}
       </small>
 
@@ -641,14 +624,9 @@ function createActivityCard(data) {
 
   `;
 
-
   return item;
 }
 
-
-// =====================================================
-// ADD ACTIVITY SLOWLY
-// =====================================================
 
 function addActivity() {
 
@@ -656,39 +634,24 @@ function addActivity() {
     return;
   }
 
-
   const data =
     simulatedActivity[
       activityIndex %
       simulatedActivity.length
     ];
 
-
   activityIndex++;
-
 
   const card =
     createActivityCard(data);
 
-
   transactionList.prepend(card);
 
-
-  requestAnimationFrame(() => {
-
-    setTimeout(() => {
-
-      card.style.transition =
-        "opacity 1.2s ease, transform 1.2s ease";
-
-      card.style.opacity = "1";
-
-      card.style.transform =
-        "translateY(0)";
-
-    }, 120);
-
-  });
+  setTimeout(() => {
+    card.classList.add(
+      "activity-visible"
+    );
+  }, 100);
 
 
   const cards =
@@ -696,74 +659,38 @@ function addActivity() {
       ".activityItem"
     );
 
-
   if (cards.length > 6) {
 
     const oldest =
       cards[cards.length - 1];
 
-
-    oldest.style.transition =
-      "opacity 3.5s ease, transform 3.5s ease";
-
-    oldest.style.opacity = "0";
-
-    oldest.style.transform =
-      "translateY(-12px)";
-
+    oldest.classList.add(
+      "activity-fade"
+    );
 
     setTimeout(() => {
 
       if (oldest.parentNode) {
-
         oldest.parentNode.removeChild(
           oldest
         );
-
       }
 
-    }, 3600);
+    }, 3500);
 
   }
 
 }
 
 
-// =====================================================
-// START ACTIVITY FEED
-// =====================================================
-
 if (transactionList) {
 
   transactionList.innerHTML = "";
 
-  // Start gently instead of filling
-  // the whole section instantly.
-
-  setTimeout(
-    addActivity,
-    900
-  );
-
-  setTimeout(
-    addActivity,
-    2600
-  );
-
-  setTimeout(
-    addActivity,
-    4400
-  );
-
-  setTimeout(
-    addActivity,
-    6200
-  );
-
-  setTimeout(
-    addActivity,
-    8000
-  );
+  setTimeout(addActivity, 700);
+  setTimeout(addActivity, 2200);
+  setTimeout(addActivity, 3700);
+  setTimeout(addActivity, 5200);
 
   setInterval(
     addActivity,
@@ -788,15 +715,19 @@ if (window.ethereum) {
         accounts.length === 0
       ) {
 
-        connectWallet.textContent =
-          "Connect Wallet";
+        if (connectWallet) {
+          connectWallet.textContent =
+            "Connect Wallet";
+        }
 
       } else {
 
-        connectWallet.textContent =
-          shortenAddress(
-            accounts[0]
-          );
+        if (connectWallet) {
+          connectWallet.textContent =
+            shortenAddress(
+              accounts[0]
+            );
+        }
 
       }
 
@@ -804,37 +735,3 @@ if (window.ethereum) {
   );
 
 }
-
-
-// =====================================================
-// INITIAL STATE
-// =====================================================
-
-document.addEventListener(
-  "DOMContentLoaded",
-  () => {
-
-    if (allocationResult) {
-
-      allocationResult.classList.add(
-        "hidden"
-      );
-
-    }
-
-    if (ioPriceElement) {
-
-      ioPriceElement.textContent =
-        "Loading...";
-
-    }
-
-    if (bnbPriceElement) {
-
-      bnbPriceElement.textContent =
-        "Loading...";
-
-    }
-
-  }
-);
