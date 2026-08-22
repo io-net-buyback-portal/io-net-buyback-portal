@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="theme-color" content="#080b14">
+  <meta
+    name="description"
+    content="IO Network Buyback Portal — Web3 allocation interface."
+  >
+
+  <title>IO Buyback Portal</title>
+
+  <link rel="stylesheet" href="./styles.css">
+</head>
+
+<body>
+
+  <div id="app">
+
+    <!-- HEADER -->
+    <header class="header">
+
+      <a href="#" class="brand">
+        <div class="brand-mark">
+          <span class="brand-ring"></span>
+          <span class="brand-core">IO</span>
+        </div>
+
+        <div class="brand-text">
+          <strong>IO Buyback</strong>
+          <small>WEB3 ALLOCATION PORTAL</small>
+        </div>
+      </a>
+
+      <nav class="navigation">
+        <a href="#about">About</a>
+        <a href="#buyback">Buyback</a>
+        <a href="#how-it-works">How it works</a>
+        <a href="#activity">Activity</a>
+      </nav>
+
+      <div class="header-actions">
+
+        <button
+          id="themeToggle"
+          class="icon-button"
+          type="button"
+          aria-label="Toggle theme"
+        >
+          ☼
+        </button>
+
+        <button
+          id="connectWallet"
+          class="wallet-button"
+          type="button"
+        >
+          Connect Wallet
+        </button>
+
+      </div>
+
+    </header>
+
+
+    <!-- HERO -->
+    <main>
+
+      <section class="hero" id="about">
+
+        <div class="hero-content">
+
+          <div class="eyebrow">
+            <span class="status-dot"></span>
+            IO NETWORK • WEB3 ALLOCATION
+          </div>
+
+          <h1>
+            The next
+            <span>IO</span>
+            allocation
+            <br>
+            starts here.
+          </h1>
+
+          <p class="hero-description">
+            Explore the IO Network buyback allocation interface,
+            review market information, calculate an estimated allocation,
+            and learn how the process works.
+          </p>
+
+          <div class="hero-buttons">
+
+            <a href="#buyback" class="primary-button">
+              Explore Buyback
+              <span>→</span>
+            </a>
+
+            <a href="#how-it-works" class="secondary-button">
+              How it works
+            </a>
+
+          </div>
+
+          <div class="hero-trust">
+
+            <span>
+              <i>✓</i>
+              Web3 interface
+            </span>
+
+            <span>
+              <i>✓</i>
+              BNB Smart Chain
+            </span>
+
+            <span>
+              <i>✓</i>
+              IO Network
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <!-- IO VISUAL -->
+        <div class="hero-visual">
+
+          <div class="orbital orbital-one"></div>
+          <div class="orbital orbital-two"></div>
+          <div class="orbital orbital-three"></div>
+
+          <div class="io-orb">
+
+            <div class="io-orb-glow"></div>
+
+            <div class="io-symbol">
+              <span>IO</span>
+            </div>
+
+          </div>
+
+          <div class="floating-card floating-top">
+            <span class="mini-label">NETWORK</span>
+            <strong>IO Network</strong>
+            <small>Active</small>
+          </div>
+
+          <div class="floating-card floating-bottom">
+            <span class="mini-label">ALLOCATION</span>
+            <strong>11%</strong>
+            <small>Bonus</small>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- STATS -->
+      <section class="stats-grid">
+
+        <div class="stat-card">
+
+          <span class="stat-label">
+            Minimum participation
+          </span>
+
+          <strong>5 BNB</strong>
+
+          <small>
+            Starting allocation
+          </small>
+
+        </div>
+
+
+        <div class="stat-card">
+
+          <span class="stat-label">
+            Maximum participation
+          </span>
+
+          <strong>500 BNB</strong>
+
+          <small>
+            Maximum allocation
+          </small>
+
+        </div>
+
+
+        <div class="stat-card">
+
+          <span class="stat-label">
+            Allocation bonus
+          </span>
+
+          <strong>11%</strong>
+
+          <small>
+            Additional allocation
+          </small>
+
+        </div>
+
+
+        <div class="stat-card">
+
+          <span class="stat-label">
+            Network
+          </span>
+
+          <strong>BNB Chain</strong>
+
+          <small>
+            BEP-20 environment
+          </small>
+
+        </div>
+
+      </section>
+
+
+      <!-- MARKET -->
+      <section class="section" id="buyback">
+
+        <div class="section-heading">
+
+          <div>
+            <span class="section-eyebrow">
+              MARKET OVERVIEW
+            </span>
+
+            <h2>IO Network market</h2>
+
+            <p>
+              Current market information and network overview.
+            </p>
+          </div>
+
+          <span class="live-badge">
+            <i></i>
+            LIVE
+          </span>
+
+        </div>
+
+
+        <div class="market-grid">
+
+          <article class="market-card">
+
+            <div class="market-top">
+
+              <div class="token-icon io-token">
+                IO
+              </div>
+
+              <span class="market-status">
+                IO NETWORK
+              </span>
+
+            </div>
+
+            <h3>IO Network</h3>
+
+            <div class="market-price">
+              <strong id="ioPrice">—</strong>
+              <span>USD</span>
+            </div>
+
+            <p>
+              Current IO market price
+            </p>
+
+            <div class="market-update">
+              <span class="pulse"></span>
+              Market data
+            </div>
+
+          </article>
+
+
+          <article class="market-card">
+
+            <div class="market-top">
+
+              <div class="token-icon bnb-token">
+                B
+              </div>
+
+              <span class="market-status">
+                BNB
+              </span>
+
+            </div>
+
+            <h3>BNB</h3>
+
+            <div class="market-price">
+              <strong id="bnbPrice">—</strong>
+              <span>USD</span>
+            </div>
+
+            <p>
+              Current BNB market price
+            </p>
+
+            <div class="market-update">
+              <span class="pulse"></span>
+              Market data
+            </div>
+
+          </article>
+
+
+          <article class="market-card network-card">
+
+            <div class="market-top">
+
+              <div class="token-icon network-token">
+                ◈
+              </div>
+
+              <span class="market-status">
+                NETWORK
+              </span>
+
+            </div>
+
+            <h3>BNB Smart Chain</h3>
+
+            <div class="network-status">
+              <span></span>
+              Operational
+            </div>
+
+            <p>
+              Network environment
+            </p>
+
+            <div class="market-update">
+              <span class="pulse"></span>
+              Network status
+            </div>
+
+          </article>
+
+        </div>
+
+      </section>
+
+
+      <!-- CALCULATOR -->
+      <section class="section calculator-section">
+
+        <div class="calculator-card">
+
+          <div class="calculator-heading">
+
+            <div>
+              <span class="section-eyebrow">
+                ALLOCATION CALCULATOR
+              </span>
+
+              <h2>Estimate your allocation</h2>
+
+              <p>
+                Enter a BNB amount to calculate an estimated IO allocation.
+              </p>
+            </div>
+
+            <div class="bonus-badge">
+              11% BONUS
+            </div>
+
+          </div>
+
+
+          <div class="calculator-body">
+
+            <label for="bnbAmount">
+              BNB Amount
+            </label>
+
+            <div class="amount-input">
+
+              <input
+                id="bnbAmount"
+                type="number"
+                min="5"
+                max="500"
+                step="0.01"
+                placeholder="Enter BNB amount"
+              >
+
+              <span>BNB</span>
+
+            </div>
+
+            <div id="calculatorMessage" class="calculator-message"></div>
+
+            <button
+              id="calculateBtn"
+              class="primary-button calculate-button"
+              type="button"
+            >
+              Calculate Allocation
+              <span>→</span>
+            </button>
+
+
+            <div id="allocationResult" class="allocation-result hidden">
+
+              <div class="result-row">
+
+                <span>
+                  Estimated IO
+                </span>
+
+                <strong id="estimatedIO">
+                  0 IO
+                </strong>
+
+              </div>
+
+
+              <div class="result-row">
+
+                <span>
+                  11% Bonus
+                </span>
+
+                <strong id="bonusIO">
+                  +0 IO
+                </strong>
+
+              </div>
+
+
+              <div class="result-row result-total">
+
+                <span>
+                  Total Allocation
+                </span>
+
+                <strong id="totalIO">
+                  0 IO
+                </strong>
+
+              </div>
+
+            </div>
+
+            <small class="calculator-note">
+              Allocation estimates are calculated from the current
+              information available through this interface.
+            </small>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- ABOUT -->
+      <section class="section information-grid">
+
+        <article class="information-card">
+
+          <span class="section-eyebrow">
+            ABOUT IO
+          </span>
+
+          <h2>
+            Built around the IO Network ecosystem.
+          </h2>
+
+          <p>
+            IO Network provides decentralized infrastructure for
+            compute-intensive applications. The ecosystem is designed
+            around distributed computing resources and Web3 infrastructure.
+          </p>
+
+          <p>
+            The buyback interface provides a structured place to review
+            allocation information, network details, and participation
+            requirements.
+          </p>
+
+        </article>
+
+
+        <article class="information-card">
+
+          <span class="section-eyebrow">
+            WHY BUYBACK
+          </span>
+
+          <h2>
+            A structured allocation approach.
+          </h2>
+
+          <p>
+            Buyback mechanisms can be designed to support token-market
+            activity while providing a transparent framework for
+            participating users.
+          </p>
+
+          <div class="feature-list">
+
+            <div>
+              <span>01</span>
+              <strong>Review</strong>
+              <small>
+                Review the available allocation information.
+              </small>
+            </div>
+
+            <div>
+              <span>02</span>
+              <strong>Calculate</strong>
+              <small>
+                Estimate your allocation using the calculator.
+              </small>
+            </div>
+
+            <div>
+              <span>03</span>
+              <strong>Verify</strong>
+              <small>
+                Carefully review transaction information before proceeding.
+              </small>
+            </div>
+
+          </div>
+
+        </article>
+
+      </section>
+
+
+      <!-- HOW IT WORKS -->
+      <section class="section" id="how-it-works">
+
+        <div class="section-heading">
+
+          <div>
+            <span class="section-eyebrow">
+              PARTICIPATION
+            </span>
+
+            <h2>How it works</h2>
+
+            <p>
+              Review each step carefully before proceeding.
+            </p>
+          </div>
+
+        </div>
+
+
+        <div class="steps-grid">
+
+          <article class="step-card">
+
+            <div class="step-number">
+              01
+            </div>
+
+            <h3>
+              Review the details
+            </h3>
+
+            <p>
+              Review the allocation limits, network information,
+              and current market information.
+            </p>
+
+          </article>
+
+
+          <article class="step-card">
+
+            <div class="step-number">
+              02
+            </div>
+
+            <h3>
+              Calculate
+            </h3>
+
+            <p>
+              Enter your BNB amount and review the estimated IO
+              allocation and applicable bonus.
+            </p>
+
+          </article>
+
+
+          <article class="step-card">
+
+            <div class="step-number">
+              03
+            </div>
+
+            <h3>
+              Review before confirming
+            </h3>
+
+            <p>
+              Carefully verify the network, destination information,
+              and transaction details before signing.
+            </p>
+
+          </article>
+
+
+          <article class="step-card">
+
+            <div class="step-number">
+              04
+            </div>
+
+            <h3>
+              Monitor activity
+            </h3>
+
+            <p>
+              Confirm completed blockchain activity using the appropriate
+              blockchain explorer.
+            </p>
+
+          </article>
+
+        </div>
+
+      </section>
+
+
+      <!-- ACTIVITY -->
+      <section class="section" id="activity">
+
+        <div class="section-heading">
+
+          <div>
+            <span class="section-eyebrow">
+              ON-CHAIN ACTIVITY
+            </span>
+
+            <h2>Recent transactions</h2>
+
+            <p>
+              Confirmed blockchain activity will appear here when connected
+              to a live transaction source.
+            </p>
+          </div>
+
+          <span class="live-badge">
+            <i></i>
+            LIVE
+          </span>
+
+        </div>
+
+
+        <div id="transactionList" class="transaction-list">
+
+          <div class="activity-empty">
+
+            <div class="empty-icon">
+              ◌
+            </div>
+
+            <strong>
+              Waiting for confirmed activity
+            </strong>
+
+            <p>
+              Confirmed transactions will appear here.
+            </p>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- FAQ -->
+      <section class="section faq-section">
+
+        <div class="section-heading">
+
+          <div>
+            <span class="section-eyebrow">
+              FAQ
+            </span>
+
+            <h2>Frequently asked questions</h2>
+          </div>
+
+        </div>
+
+
+        <div class="faq-list">
+
+          <details>
+            <summary>
+              What is IO Network?
+              <span>+</span>
+            </summary>
+
+            <p>
+              IO Network is a decentralized computing ecosystem focused
+              on distributed infrastructure and compute resources.
+            </p>
+          </details>
+
+
+          <details>
+            <summary>
+              What network is used?
+              <span>+</span>
+            </summary>
+
+            <p>
+              The interface is designed around the BNB Smart Chain
+              environment.
+            </p>
+          </details>
+
+
+          <details>
+            <summary>
+              How is the allocation estimated?
+              <span>+</span>
+            </summary>
+
+            <p>
+              Enter an amount within the displayed participation range
+              and the calculator provides an estimated allocation.
+            </p>
+          </details>
+
+
+          <details>
+            <summary>
+              Where can transactions be verified?
+              <span>+</span>
+            </summary>
+
+            <p>
+              Confirmed transactions should always be independently
+              verified through the relevant blockchain explorer.
+            </p>
+          </details>
+
+        </div>
+
+      </section>
+
+
+      <!-- FOOTER CTA -->
+      <section class="final-cta">
+
+        <div>
+
+          <span class="section-eyebrow">
+            IO NETWORK
+          </span>
+
+          <h2>
+            Explore the IO allocation interface.
+          </h2>
+
+          <p>
+            Review the information above and calculate an estimated
+            allocation.
+          </p>
+
+        </div>
+
+        <a href="#buyback" class="primary-button">
+          Start exploring
+          <span>→</span>
+        </a>
+
+      </section>
+
+    </main>
+
+
+    <!-- FOOTER -->
+    <footer class="footer">
+
+      <div class="footer-brand">
+
+        <div class="brand-mark small-mark">
+          <span class="brand-ring"></span>
+          <span class="brand-core">IO</span>
+        </div>
+
+        <div>
+          <strong>IO Buyback</strong>
+          <small>
+            WEB3 ALLOCATION PORTAL
+          </small>
+        </div>
+
+      </div>
+
+      <div class="footer-right">
+        <span>IO Network</span>
+        <span>•</span>
+        <span>Web3 Interface</span>
+      </div>
+
+    </footer>
+
+  </div>
+
+
+  <!-- WALLET MODAL -->
+  <div
+    id="walletModal"
+    class="modal-overlay hidden"
+  >
+
+    <div class="wallet-modal">
+
+      <button
+        id="closeWallet"
+        class="modal-close"
+        type="button"
+      >
+        ×
+      </button>
+
+      <span class="section-eyebrow">
+        WALLET CONNECTION
+      </span>
+
+      <h2>
+        Connect Wallet
+      </h2>
+
+      <p>
+        Connect a compatible Web3 wallet to continue.
+      </p>
+
+      <button
+        id="modalConnectWallet"
+        class="primary-button full-button"
+        type="button"
+      >
+        Connect Wallet
+        <span>→</span>
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <script src="./app.js"></script>
+
+</body>
+</html>
