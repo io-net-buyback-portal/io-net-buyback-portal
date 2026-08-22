@@ -1,5 +1,6 @@
 /* =========================================================
-   IO NETWORK — COMPLETE APP
+   IO NETWORK — APP.JS
+   Complete replacement
 ========================================================= */
 
 const CONTRACT_ADDRESS =
@@ -12,25 +13,31 @@ const BONUS_RATE = 0.11;
 let ioPrice = 0;
 let bnbPrice = 0;
 let ioSymbol = null;
+let ioDecimals = 18;
+
+
+/* =========================================================
+   BASIC SELECTOR
+========================================================= */
 
 const $ = (selector) =>
   document.querySelector(selector);
 
 
 /* =========================================================
-   BINANCE MARKET DATA
+   BINANCE REQUEST
 ========================================================= */
 
 async function binanceJSON(path) {
 
-  const urls = [
+  const endpoints = [
     `https://api.binance.com${path}`,
     `https://data-api.binance.vision${path}`
   ];
 
-  let lastError;
+  let lastError = null;
 
-  for (const url of urls) {
+  for (const url of endpoints) {
 
     try {
 
@@ -58,7 +65,7 @@ async function binanceJSON(path) {
 
 
 /* =========================================================
-   FIND IO/USDT SYMBOL
+   FIND IO MARKET SYMBOL
 ========================================================= */
 
 async function resolveIOSymbol() {
@@ -74,25 +81,31 @@ async function resolveIOSymbol() {
       : [];
 
   const match =
-    symbols.find(symbol =>
+    symbols.find(symbol => {
 
-      symbol.status === "TRADING" &&
+      const base =
+        String(symbol.baseAsset)
+          .toUpperCase();
 
-      symbol.quoteAsset === "USDT" &&
+      const quote =
+        String(symbol.quoteAsset)
+          .toUpperCase();
 
-      (
-        String(symbol.baseAsset).toUpperCase() === "IO" ||
-        String(symbol.baseAsset).toUpperCase() === "IONET"
-      )
+      return (
+        symbol.status === "TRADING" &&
+        quote === "USDT" &&
+        (
+          base === "IO" ||
+          base === "IONET"
+        )
+      );
 
-    );
+    });
 
   if (!match) {
-
     throw new Error(
-      "No active IO/USDT Binance spot pair found."
+      "IO/USDT market pair was not found."
     );
-
   }
 
   return match.symbol;
@@ -100,7 +113,7 @@ async function resolveIOSymbol() {
 
 
 /* =========================================================
-   TICKER
+   MARKET TICKER
 ========================================================= */
 
 async function getTicker(symbol) {
@@ -125,18 +138,34 @@ function formatUSD(value) {
     return "Unavailable";
   }
 
-  if (value < 1) {
-
-    return `$${value.toFixed(4)}`;
-
-  }
-
   return new Intl.NumberFormat(
     "en-US",
     {
       style: "currency",
       currency: "USD",
-      minimumFractionDigits: 2,
+      minimumFractionDigits:
+        value < 1 ? 4 : 2,
+      maximumFractionDigits:
+        value < 1 ? 4 : 2
+    }
+  ).format(value);
+
+}
+
+
+/* =========================================================
+   FORMAT NUMBERS
+========================================================= */
+
+function formatNumber(value) {
+
+  if (!Number.isFinite(value)) {
+    return "0";
+  }
+
+  return new Intl.NumberFormat(
+    "en-US",
+    {
       maximumFractionDigits: 2
     }
   ).format(value);
@@ -145,12 +174,16 @@ function formatUSD(value) {
 
 
 /* =========================================================
-   24H CHANGE
+   MARKET CHANGE
 ========================================================= */
 
-function setChange(selector, value) {
+function setChange(
+  selector,
+  value
+) {
 
-  const element = $(selector);
+  const element =
+    $(selector);
 
   if (!element) return;
 
@@ -169,16 +202,11 @@ function setChange(selector, value) {
   element.textContent =
     `${sign}${value.toFixed(2)}% 24h`;
 
-  element.classList.toggle(
-    "negative",
-    value < 0
-  );
-
 }
 
 
 /* =========================================================
-   LOAD PRICES
+   LOAD MARKET PRICES
 ========================================================= */
 
 async function loadPrices() {
@@ -202,7 +230,6 @@ async function loadPrices() {
       getTicker("BNBUSDT")
 
     ]);
-
 
     ioPrice =
       Number(io.lastPrice);
@@ -248,50 +275,26 @@ async function loadPrices() {
 
     calculateAllocation();
 
-
   } catch (error) {
 
     console.warn(
-      "Market data unavailable:",
+      "Market data error:",
       error
     );
 
-
-    if (!ioPrice) {
-
+    if ($("#ioPrice")) {
       $("#ioPrice").textContent =
         "Unavailable";
-
     }
 
-
-    if (!bnbPrice) {
-
+    if ($("#bnbPrice")) {
       $("#bnbPrice").textContent =
         "Unavailable";
-
     }
-
 
     calculateAllocation();
 
   }
-
-}
-
-
-/* =========================================================
-   NUMBER FORMAT
-========================================================= */
-
-function formatNumber(value) {
-
-  return new Intl.NumberFormat(
-    "en-US",
-    {
-      maximumFractionDigits: 2
-    }
-  ).format(value);
 
 }
 
@@ -308,8 +311,9 @@ function calculateAllocation() {
   const message =
     $("#calculatorMessage");
 
-  if (!input || !message) return;
-
+  if (!input || !message) {
+    return;
+  }
 
   const amount =
     Number(input.value);
@@ -330,7 +334,6 @@ function calculateAllocation() {
       "Minimum 5 BNB · Maximum 500 BNB";
 
     return;
-
   }
 
 
@@ -349,7 +352,6 @@ function calculateAllocation() {
       "Minimum participation is 5 BNB.";
 
     return;
-
   }
 
 
@@ -368,27 +370,27 @@ function calculateAllocation() {
       "Maximum participation is 500 BNB.";
 
     return;
-
   }
 
 
-  if (!ioPrice || !bnbPrice) {
+  if (
+    !ioPrice ||
+    !bnbPrice
+  ) {
 
     message.textContent =
       "Waiting for current market prices.";
 
     return;
-
   }
 
 
   const base =
-    (amount * bnbPrice) / ioPrice;
-
+    (amount * bnbPrice) /
+    ioPrice;
 
   const bonus =
     base * BONUS_RATE;
-
 
   const total =
     base + bonus;
@@ -397,10 +399,8 @@ function calculateAllocation() {
   $("#estimatedIO").textContent =
     `${formatNumber(base)} IO`;
 
-
   $("#bonusIO").textContent =
     `${formatNumber(bonus)} IO`;
-
 
   $("#totalIO").textContent =
     `${formatNumber(total)} IO`;
@@ -413,12 +413,8 @@ function calculateAllocation() {
 
 
 /* =========================================================
-   ON-CHAIN ACTIVITY
+   BNB SMART CHAIN RPC
 ========================================================= */
-
-const TRANSFER_TOPIC =
-  "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a6b2f9b0e8";
-
 
 const RPC_URLS = [
 
@@ -436,8 +432,7 @@ async function rpc(
   params
 ) {
 
-  let lastError;
-
+  let lastError = null;
 
   for (const url of RPC_URLS) {
 
@@ -448,16 +443,19 @@ async function rpc(
           url,
           {
             method: "POST",
+
             headers: {
               "Content-Type":
                 "application/json"
             },
+
             body: JSON.stringify({
               jsonrpc: "2.0",
               id: Date.now(),
               method,
               params
             }),
+
             cache: "no-store"
           }
         );
@@ -496,20 +494,35 @@ async function rpc(
 
   }
 
-
   throw (
     lastError ||
-    new Error(
-      "BSC RPC unavailable"
-    )
+    new Error("BSC RPC unavailable")
   );
 
 }
 
 
 /* =========================================================
-   ADDRESS HELPERS
+   ERC20 TRANSFER EVENT
 ========================================================= */
+
+const TRANSFER_TOPIC =
+  "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a6b2f9b0e8";
+
+
+/* =========================================================
+   HEX HELPERS
+========================================================= */
+
+function hexToNumber(hex) {
+
+  return Number.parseInt(
+    hex,
+    16
+  );
+
+}
+
 
 function cleanAddress(topic) {
 
@@ -530,18 +543,386 @@ function shortAddress(address) {
 }
 
 
-function hexToNumber(hex) {
+/* =========================================================
+   TOKEN DECIMALS
+========================================================= */
 
-  return Number.parseInt(
-    hex,
-    16
+async function loadTokenDecimals() {
+
+  try {
+
+    const result =
+      await rpc(
+        "eth_call",
+        [
+          {
+            to:
+              CONTRACT_ADDRESS,
+
+            data:
+              "0x313ce567"
+          },
+
+          "latest"
+        ]
+      );
+
+
+    const decimals =
+      hexToNumber(result);
+
+
+    if (
+      Number.isFinite(decimals) &&
+      decimals >= 0 &&
+      decimals <= 36
+    ) {
+
+      ioDecimals =
+        decimals;
+
+    }
+
+  } catch (error) {
+
+    console.warn(
+      "Could not read token decimals. Using 18.",
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   CONVERT TOKEN AMOUNT
+========================================================= */
+
+function tokenAmountFromHex(hex) {
+
+  try {
+
+    const raw =
+      BigInt(hex);
+
+    const divisor =
+      10n ** BigInt(ioDecimals);
+
+    const whole =
+      raw / divisor;
+
+    const remainder =
+      raw % divisor;
+
+
+    const remainderString =
+      remainder
+        .toString()
+        .padStart(
+          ioDecimals,
+          "0"
+        );
+
+
+    const trimmed =
+      remainderString
+        .replace(/0+$/, "");
+
+
+    if (!trimmed) {
+
+      return Number(
+        whole
+      );
+
+    }
+
+
+    return Number(
+      `${whole}.${trimmed}`
+    );
+
+  } catch {
+
+    return 0;
+
+  }
+
+}
+
+
+/* =========================================================
+   GET BLOCK RANGE
+========================================================= */
+
+async function getLatestBlock() {
+
+  const latestHex =
+    await rpc(
+      "eth_blockNumber",
+      []
+    );
+
+  return hexToNumber(
+    latestHex
   );
 
 }
 
 
 /* =========================================================
-   LOAD REAL TRANSFER ACTIVITY
+   GET TRANSFERS IN SMALL CHUNKS
+========================================================= */
+
+async function getTransferLogs() {
+
+  const latest =
+    await getLatestBlock();
+
+
+  /*
+    Instead of asking the RPC for thousands
+    of blocks at once, we search in small
+    ranges. This prevents the activity section
+    from becoming empty because of an RPC
+    range-limit error.
+  */
+
+  const CHUNK_SIZE = 500;
+
+  const LOOKBACK =
+    10000;
+
+  const start =
+    Math.max(
+      0,
+      latest - LOOKBACK
+    );
+
+
+  const ranges = [];
+
+  for (
+    let from = start;
+    from <= latest;
+    from += CHUNK_SIZE
+  ) {
+
+    ranges.push({
+      from,
+      to:
+        Math.min(
+          from + CHUNK_SIZE - 1,
+          latest
+        )
+    });
+
+  }
+
+
+  const allLogs = [];
+
+
+  /*
+    Search newest ranges first.
+  */
+
+  for (
+    let i = ranges.length - 1;
+    i >= 0;
+    i--
+  ) {
+
+    const range =
+      ranges[i];
+
+
+    try {
+
+      const logs =
+        await rpc(
+          "eth_getLogs",
+          [
+            {
+              address:
+                CONTRACT_ADDRESS,
+
+              fromBlock:
+                "0x" +
+                range.from.toString(16),
+
+              toBlock:
+                "0x" +
+                range.to.toString(16),
+
+              topics:
+                [
+                  TRANSFER_TOPIC
+                ]
+            }
+          ]
+        );
+
+
+      if (
+        Array.isArray(logs) &&
+        logs.length
+      ) {
+
+        allLogs.push(
+          ...logs
+        );
+
+      }
+
+
+      /*
+        Once we have enough real transactions,
+        stop searching older blocks.
+      */
+
+      if (
+        allLogs.length >= 8
+      ) {
+
+        break;
+
+      }
+
+    } catch (error) {
+
+      console.warn(
+        "Transfer range failed:",
+        range,
+        error
+      );
+
+    }
+
+  }
+
+
+  return allLogs
+    .sort(
+      (a, b) =>
+        hexToNumber(b.blockNumber) -
+        hexToNumber(a.blockNumber)
+    )
+    .slice(0, 8);
+
+}
+
+
+/* =========================================================
+   RENDER ACTIVITY
+========================================================= */
+
+function renderActivity(
+  logs
+) {
+
+  const grid =
+    $("#activityGrid");
+
+  if (!grid) return;
+
+
+  if (
+    !Array.isArray(logs) ||
+    !logs.length
+  ) {
+
+    grid.innerHTML = `
+      <div class="activity-empty">
+        No recent IO transfer activity was found
+        for the configured contract.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  grid.innerHTML =
+    logs.map(log => {
+
+      const fromAddress =
+        cleanAddress(
+          log.topics[1]
+        );
+
+
+      const toAddress =
+        cleanAddress(
+          log.topics[2]
+        );
+
+
+      const amount =
+        tokenAmountFromHex(
+          log.data
+        );
+
+
+      const block =
+        hexToNumber(
+          log.blockNumber
+        );
+
+
+      const transaction =
+        log.transactionHash;
+
+
+      return `
+
+        <article class="activity-row">
+
+          <div class="activity-icon">
+            ↗
+          </div>
+
+
+          <div class="activity-main">
+
+            <strong>
+              ${formatNumber(amount)} IO
+            </strong>
+
+            <span>
+              ${shortAddress(fromAddress)}
+              →
+              ${shortAddress(toAddress)}
+            </span>
+
+          </div>
+
+
+          <div class="activity-meta">
+
+            <strong>
+              ON-CHAIN
+            </strong>
+
+            <small>
+              Block ${block}
+            </small>
+
+          </div>
+
+        </article>
+
+      `;
+
+    }).join("");
+
+}
+
+
+/* =========================================================
+   LOAD ACTIVITY
 ========================================================= */
 
 async function loadActivity() {
@@ -554,158 +935,32 @@ async function loadActivity() {
 
   grid.innerHTML = `
     <div class="activity-loading">
-      Loading recent on-chain activity...
+      Loading recent IO transactions...
     </div>
   `;
 
 
   try {
 
-    const latestHex =
-      await rpc(
-        "eth_blockNumber",
-        []
-      );
-
-
-    const latest =
-      hexToNumber(
-        latestHex
-      );
-
-
-    const from =
-      Math.max(
-        0,
-        latest - 2500
-      );
-
+    await loadTokenDecimals();
 
     const logs =
-      await rpc(
-        "eth_getLogs",
-        [
-          {
-            address:
-              CONTRACT_ADDRESS,
+      await getTransferLogs();
 
-            fromBlock:
-              "0x" +
-              from.toString(16),
-
-            toBlock:
-              latestHex,
-
-            topics:
-              [TRANSFER_TOPIC]
-          }
-        ]
-      );
-
-
-    const recent =
-      Array.isArray(logs)
-        ? logs.slice(-8).reverse()
-        : [];
-
-
-    if (!recent.length) {
-
-      grid.innerHTML = `
-        <div class="activity-empty">
-          No recent on-chain transfer events found
-          for this contract.
-        </div>
-      `;
-
-      return;
-
-    }
-
-
-    grid.innerHTML =
-      recent.map(log => {
-
-        const fromAddress =
-          cleanAddress(
-            log.topics[1]
-          );
-
-
-        const toAddress =
-          cleanAddress(
-            log.topics[2]
-          );
-
-
-        const amountRaw =
-          BigInt(log.data);
-
-
-        const amount =
-          Number(amountRaw) /
-          1e18;
-
-
-        return `
-          <article class="activity-row">
-
-            <div class="activity-icon">
-              ↗
-            </div>
-
-            <div class="activity-main">
-
-              <strong>
-                ${
-                  Number.isFinite(amount)
-                    ? formatNumber(amount)
-                    : "Transfer"
-                } IO
-              </strong>
-
-              <span>
-                ${shortAddress(fromAddress)}
-                →
-                ${shortAddress(toAddress)}
-              </span>
-
-            </div>
-
-            <div class="activity-meta">
-
-              <strong>
-                ON-CHAIN
-              </strong>
-
-              <small>
-                Block ${
-                  hexToNumber(
-                    log.blockNumber
-                  )
-                }
-              </small>
-
-            </div>
-
-          </article>
-        `;
-
-      }).join("");
-
+    renderActivity(logs);
 
   } catch (error) {
 
-    console.warn(
-      "On-chain activity unavailable:",
+    console.error(
+      "Activity error:",
       error
     );
 
 
     grid.innerHTML = `
       <div class="activity-empty">
-        On-chain activity is temporarily unavailable.
-        The portal will retry automatically.
+        Unable to load recent IO activity right now.
+        Please refresh the page and try again.
       </div>
     `;
 
@@ -736,10 +991,8 @@ function setupCopy() {
           CONTRACT_ADDRESS
         );
 
-
         button.textContent =
           "Copied";
-
 
         setTimeout(
           () => {
@@ -749,12 +1002,10 @@ function setupCopy() {
           1500
         );
 
-
       } catch {
 
         button.textContent =
           "Copy failed";
-
 
         setTimeout(
           () => {
@@ -825,22 +1076,22 @@ function setupWallet() {
     $("#modalConnectWallet");
 
 
-  const show = () => {
+  function show() {
 
     modal?.classList.remove(
       "hidden"
     );
 
-  };
+  }
 
 
-  const hide = () => {
+  function hide() {
 
     modal?.classList.add(
       "hidden"
     );
 
-  };
+  }
 
 
   open?.addEventListener(
@@ -914,11 +1165,19 @@ function init() {
   loadActivity();
 
 
+  /*
+    Refresh market prices every minute.
+  */
+
   setInterval(
     loadPrices,
     60000
   );
 
+
+  /*
+    Refresh on-chain activity every two minutes.
+  */
 
   setInterval(
     loadActivity,
@@ -927,6 +1186,10 @@ function init() {
 
 }
 
+
+/* =========================================================
+   START
+========================================================= */
 
 if (
   document.readyState ===
