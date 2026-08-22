@@ -1,127 +1,56 @@
 /* =========================================================
-   IO NETWORK — APP.JS
-   Complete replacement
+   IO NETWORK — COMPLETE APP.JS
 ========================================================= */
 
-const CONTRACT_ADDRESS =
-  "0x6b60465D676d5FF50F615F2EB5F88baFA56a42b3";
+const IO_PRICE_SYMBOL = "IOUSDT";
+const BNB_PRICE_SYMBOL = "BNBUSDT";
 
 const MIN_BNB = 5;
 const MAX_BNB = 500;
 const BONUS_RATE = 0.11;
 
+const CONTRACT_ADDRESS =
+  "0x6b60465D676d5FF50F615F2EB5F88baFA56a42b3";
+
 let ioPrice = 0;
 let bnbPrice = 0;
-let ioSymbol = null;
-let ioDecimals = 18;
-
-
-/* =========================================================
-   BASIC SELECTOR
-========================================================= */
 
 const $ = (selector) =>
   document.querySelector(selector);
 
 
 /* =========================================================
-   BINANCE REQUEST
+   BINANCE MARKET DATA
 ========================================================= */
 
-async function binanceJSON(path) {
+async function getBinanceTicker(symbol) {
 
-  const endpoints = [
-    `https://api.binance.com${path}`,
-    `https://data-api.binance.vision${path}`
+  const urls = [
+    `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`,
+    `https://data-api.binance.vision/api/v3/ticker/24hr?symbol=${symbol}`
   ];
 
-  let lastError = null;
-
-  for (const url of endpoints) {
+  for (const url of urls) {
 
     try {
 
-      const response = await fetch(url, {
-        cache: "no-store"
-      });
+      const response = await fetch(
+        url,
+        { cache: "no-store" }
+      );
 
       if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
+        continue;
       }
 
       return await response.json();
 
-    } catch (error) {
-
-      lastError = error;
-
+    } catch {
+      continue;
     }
-
   }
 
-  throw lastError ||
-    new Error("Market request failed");
-}
-
-
-/* =========================================================
-   FIND IO MARKET SYMBOL
-========================================================= */
-
-async function resolveIOSymbol() {
-
-  const data =
-    await binanceJSON(
-      "/api/v3/exchangeInfo"
-    );
-
-  const symbols =
-    Array.isArray(data.symbols)
-      ? data.symbols
-      : [];
-
-  const match =
-    symbols.find(symbol => {
-
-      const base =
-        String(symbol.baseAsset)
-          .toUpperCase();
-
-      const quote =
-        String(symbol.quoteAsset)
-          .toUpperCase();
-
-      return (
-        symbol.status === "TRADING" &&
-        quote === "USDT" &&
-        (
-          base === "IO" ||
-          base === "IONET"
-        )
-      );
-
-    });
-
-  if (!match) {
-    throw new Error(
-      "IO/USDT market pair was not found."
-    );
-  }
-
-  return match.symbol;
-}
-
-
-/* =========================================================
-   MARKET TICKER
-========================================================= */
-
-async function getTicker(symbol) {
-
-  return binanceJSON(
-    `/api/v3/ticker/24hr?symbol=${encodeURIComponent(symbol)}`
-  );
-
+  throw new Error("Binance market data unavailable");
 }
 
 
@@ -149,7 +78,6 @@ function formatUSD(value) {
         value < 1 ? 4 : 2
     }
   ).format(value);
-
 }
 
 
@@ -158,10 +86,6 @@ function formatUSD(value) {
 ========================================================= */
 
 function formatNumber(value) {
-
-  if (!Number.isFinite(value)) {
-    return "0";
-  }
 
   return new Intl.NumberFormat(
     "en-US",
@@ -177,13 +101,9 @@ function formatNumber(value) {
    MARKET CHANGE
 ========================================================= */
 
-function setChange(
-  selector,
-  value
-) {
+function updateChange(selector, value) {
 
-  const element =
-    $(selector);
+  const element = $(selector);
 
   if (!element) return;
 
@@ -193,7 +113,6 @@ function setChange(
       "Market change unavailable";
 
     return;
-
   }
 
   const sign =
@@ -202,32 +121,39 @@ function setChange(
   element.textContent =
     `${sign}${value.toFixed(2)}% 24h`;
 
+  element.classList.toggle(
+    "negative",
+    value < 0
+  );
 }
 
 
 /* =========================================================
-   LOAD MARKET PRICES
+   LOAD PRICES
 ========================================================= */
 
 async function loadPrices() {
 
+  const ioPriceEl =
+    $("#ioPrice");
+
+  const bnbPriceEl =
+    $("#bnbPrice");
+
   try {
-
-    if (!ioSymbol) {
-
-      ioSymbol =
-        await resolveIOSymbol();
-
-    }
 
     const [
       io,
       bnb
     ] = await Promise.all([
 
-      getTicker(ioSymbol),
+      getBinanceTicker(
+        IO_PRICE_SYMBOL
+      ),
 
-      getTicker("BNBUSDT")
+      getBinanceTicker(
+        BNB_PRICE_SYMBOL
+      )
 
     ]);
 
@@ -238,36 +164,28 @@ async function loadPrices() {
       Number(bnb.lastPrice);
 
 
-    const ioPriceElement =
-      $("#ioPrice");
+    if (ioPriceEl) {
 
-    const bnbPriceElement =
-      $("#bnbPrice");
-
-
-    if (ioPriceElement) {
-
-      ioPriceElement.textContent =
+      ioPriceEl.textContent =
         formatUSD(ioPrice);
 
     }
 
 
-    if (bnbPriceElement) {
+    if (bnbPriceEl) {
 
-      bnbPriceElement.textContent =
+      bnbPriceEl.textContent =
         formatUSD(bnbPrice);
 
     }
 
 
-    setChange(
+    updateChange(
       "#ioChange",
       Number(io.priceChangePercent)
     );
 
-
-    setChange(
+    updateChange(
       "#bnbChange",
       Number(bnb.priceChangePercent)
     );
@@ -278,24 +196,21 @@ async function loadPrices() {
   } catch (error) {
 
     console.warn(
-      "Market data error:",
+      "Market price error:",
       error
     );
 
-    if ($("#ioPrice")) {
-      $("#ioPrice").textContent =
+    if (ioPriceEl) {
+      ioPriceEl.textContent =
         "Unavailable";
     }
 
-    if ($("#bnbPrice")) {
-      $("#bnbPrice").textContent =
+    if (bnbPriceEl) {
+      bnbPriceEl.textContent =
         "Unavailable";
     }
-
-    calculateAllocation();
 
   }
-
 }
 
 
@@ -385,25 +300,25 @@ function calculateAllocation() {
   }
 
 
-  const base =
+  const baseIO =
     (amount * bnbPrice) /
     ioPrice;
 
-  const bonus =
-    base * BONUS_RATE;
+  const bonusIO =
+    baseIO * BONUS_RATE;
 
-  const total =
-    base + bonus;
+  const totalIO =
+    baseIO + bonusIO;
 
 
   $("#estimatedIO").textContent =
-    `${formatNumber(base)} IO`;
+    `${formatNumber(baseIO)} IO`;
 
   $("#bonusIO").textContent =
-    `${formatNumber(bonus)} IO`;
+    `${formatNumber(bonusIO)} IO`;
 
   $("#totalIO").textContent =
-    `${formatNumber(total)} IO`;
+    `${formatNumber(totalIO)} IO`;
 
 
   message.textContent =
@@ -413,404 +328,96 @@ function calculateAllocation() {
 
 
 /* =========================================================
-   BNB SMART CHAIN RPC
+   SIMULATED ACTIVITY
+   Same compact style as the ATOM activity section.
 ========================================================= */
 
-const RPC_URLS = [
+const activity = [
 
-  "https://bsc-dataseed.binance.org/",
+  {
+    amount: "2,100",
+    address: "0xa73c...91b4"
+  },
 
-  "https://bsc-dataseed1.defibit.io/",
+  {
+    amount: "580",
+    address: "0x31f7...e204"
+  },
 
-  "https://bsc-dataseed1.ninicoin.io/"
+  {
+    amount: "1,250",
+    address: "0x8c42...a91d"
+  },
+
+  {
+    amount: "3,420",
+    address: "0x6b91...42fa"
+  },
+
+  {
+    amount: "890",
+    address: "0x51d8...c720"
+  },
+
+  {
+    amount: "4,680",
+    address: "0x92ab...18ef"
+  },
+
+  {
+    amount: "1,760",
+    address: "0x47ce...b381"
+  },
+
+  {
+    amount: "2,940",
+    address: "0xd521...7aa6"
+  }
 
 ];
 
 
-async function rpc(
-  method,
-  params
-) {
-
-  let lastError = null;
-
-  for (const url of RPC_URLS) {
-
-    try {
-
-      const response =
-        await fetch(
-          url,
-          {
-            method: "POST",
-
-            headers: {
-              "Content-Type":
-                "application/json"
-            },
-
-            body: JSON.stringify({
-              jsonrpc: "2.0",
-              id: Date.now(),
-              method,
-              params
-            }),
-
-            cache: "no-store"
-          }
-        );
-
-
-      if (!response.ok) {
-
-        throw new Error(
-          `RPC HTTP ${response.status}`
-        );
-
-      }
-
-
-      const data =
-        await response.json();
-
-
-      if (data.error) {
-
-        throw new Error(
-          data.error.message
-        );
-
-      }
-
-
-      return data.result;
-
-
-    } catch (error) {
-
-      lastError = error;
-
-    }
-
-  }
-
-  throw (
-    lastError ||
-    new Error("BSC RPC unavailable")
-  );
-
-}
-
-
 /* =========================================================
-   ERC20 TRANSFER EVENT
+   ACTIVITY CARD
 ========================================================= */
 
-const TRANSFER_TOPIC =
-  "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a6b2f9b0e8";
+function activityCard(item) {
 
+  return `
 
-/* =========================================================
-   HEX HELPERS
-========================================================= */
+    <article class="activity-row">
 
-function hexToNumber(hex) {
+      <div class="activity-icon">
+        ↗
+      </div>
 
-  return Number.parseInt(
-    hex,
-    16
-  );
+      <div class="activity-main">
 
-}
+        <strong>
+          ${item.amount} IO
+        </strong>
 
+        <span>
+          ${item.address}
+        </span>
 
-function cleanAddress(topic) {
+      </div>
 
-  return (
-    "0x" +
-    topic.slice(-40)
-  );
+      <div class="activity-status">
 
-}
+        <strong>
+          SIMULATED
+        </strong>
 
+        <small>
+          Activity
+        </small>
 
-function shortAddress(address) {
+      </div>
 
-  return (
-    `${address.slice(0, 6)}...${address.slice(-4)}`
-  );
+    </article>
 
-}
-
-
-/* =========================================================
-   TOKEN DECIMALS
-========================================================= */
-
-async function loadTokenDecimals() {
-
-  try {
-
-    const result =
-      await rpc(
-        "eth_call",
-        [
-          {
-            to:
-              CONTRACT_ADDRESS,
-
-            data:
-              "0x313ce567"
-          },
-
-          "latest"
-        ]
-      );
-
-
-    const decimals =
-      hexToNumber(result);
-
-
-    if (
-      Number.isFinite(decimals) &&
-      decimals >= 0 &&
-      decimals <= 36
-    ) {
-
-      ioDecimals =
-        decimals;
-
-    }
-
-  } catch (error) {
-
-    console.warn(
-      "Could not read token decimals. Using 18.",
-      error
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   CONVERT TOKEN AMOUNT
-========================================================= */
-
-function tokenAmountFromHex(hex) {
-
-  try {
-
-    const raw =
-      BigInt(hex);
-
-    const divisor =
-      10n ** BigInt(ioDecimals);
-
-    const whole =
-      raw / divisor;
-
-    const remainder =
-      raw % divisor;
-
-
-    const remainderString =
-      remainder
-        .toString()
-        .padStart(
-          ioDecimals,
-          "0"
-        );
-
-
-    const trimmed =
-      remainderString
-        .replace(/0+$/, "");
-
-
-    if (!trimmed) {
-
-      return Number(
-        whole
-      );
-
-    }
-
-
-    return Number(
-      `${whole}.${trimmed}`
-    );
-
-  } catch {
-
-    return 0;
-
-  }
-
-}
-
-
-/* =========================================================
-   GET BLOCK RANGE
-========================================================= */
-
-async function getLatestBlock() {
-
-  const latestHex =
-    await rpc(
-      "eth_blockNumber",
-      []
-    );
-
-  return hexToNumber(
-    latestHex
-  );
-
-}
-
-
-/* =========================================================
-   GET TRANSFERS IN SMALL CHUNKS
-========================================================= */
-
-async function getTransferLogs() {
-
-  const latest =
-    await getLatestBlock();
-
-
-  /*
-    Instead of asking the RPC for thousands
-    of blocks at once, we search in small
-    ranges. This prevents the activity section
-    from becoming empty because of an RPC
-    range-limit error.
-  */
-
-  const CHUNK_SIZE = 500;
-
-  const LOOKBACK =
-    10000;
-
-  const start =
-    Math.max(
-      0,
-      latest - LOOKBACK
-    );
-
-
-  const ranges = [];
-
-  for (
-    let from = start;
-    from <= latest;
-    from += CHUNK_SIZE
-  ) {
-
-    ranges.push({
-      from,
-      to:
-        Math.min(
-          from + CHUNK_SIZE - 1,
-          latest
-        )
-    });
-
-  }
-
-
-  const allLogs = [];
-
-
-  /*
-    Search newest ranges first.
-  */
-
-  for (
-    let i = ranges.length - 1;
-    i >= 0;
-    i--
-  ) {
-
-    const range =
-      ranges[i];
-
-
-    try {
-
-      const logs =
-        await rpc(
-          "eth_getLogs",
-          [
-            {
-              address:
-                CONTRACT_ADDRESS,
-
-              fromBlock:
-                "0x" +
-                range.from.toString(16),
-
-              toBlock:
-                "0x" +
-                range.to.toString(16),
-
-              topics:
-                [
-                  TRANSFER_TOPIC
-                ]
-            }
-          ]
-        );
-
-
-      if (
-        Array.isArray(logs) &&
-        logs.length
-      ) {
-
-        allLogs.push(
-          ...logs
-        );
-
-      }
-
-
-      /*
-        Once we have enough real transactions,
-        stop searching older blocks.
-      */
-
-      if (
-        allLogs.length >= 8
-      ) {
-
-        break;
-
-      }
-
-    } catch (error) {
-
-      console.warn(
-        "Transfer range failed:",
-        range,
-        error
-      );
-
-    }
-
-  }
-
-
-  return allLogs
-    .sort(
-      (a, b) =>
-        hexToNumber(b.blockNumber) -
-        hexToNumber(a.blockNumber)
-    )
-    .slice(0, 8);
-
+  `;
 }
 
 
@@ -818,9 +425,7 @@ async function getTransferLogs() {
    RENDER ACTIVITY
 ========================================================= */
 
-function renderActivity(
-  logs
-) {
+function renderActivity() {
 
   const grid =
     $("#activityGrid");
@@ -828,143 +433,127 @@ function renderActivity(
   if (!grid) return;
 
 
-  if (
-    !Array.isArray(logs) ||
-    !logs.length
-  ) {
+  /*
+    Show only three rows at a time,
+    matching the compact ATOM layout.
+  */
 
-    grid.innerHTML = `
-      <div class="activity-empty">
-        No recent IO transfer activity was found
-        for the configured contract.
-      </div>
-    `;
-
-    return;
-
-  }
+  let currentIndex = 0;
 
 
-  grid.innerHTML =
-    logs.map(log => {
+  function draw() {
 
-      const fromAddress =
-        cleanAddress(
-          log.topics[1]
+    const visible = [];
+
+    for (
+      let i = 0;
+      i < 3;
+      i++
+    ) {
+
+      visible.push(
+        activity[
+          (currentIndex + i) %
+          activity.length
+        ]
+      );
+
+    }
+
+
+    grid.innerHTML =
+      visible
+        .map(activityCard)
+        .join("");
+
+
+    const rows =
+      grid.querySelectorAll(
+        ".activity-row"
+      );
+
+
+    /*
+      Smooth entrance.
+    */
+
+    rows.forEach(
+      (row, index) => {
+
+        row.style.opacity = "0";
+        row.style.transform =
+          "translateY(-18px)";
+
+        row.style.transition =
+          "opacity 1s ease, transform 1s ease";
+
+        setTimeout(
+          () => {
+
+            row.style.opacity = "1";
+            row.style.transform =
+              "translateY(0)";
+
+          },
+          index * 120
         );
 
-
-      const toAddress =
-        cleanAddress(
-          log.topics[2]
-        );
-
-
-      const amount =
-        tokenAmountFromHex(
-          log.data
-        );
-
-
-      const block =
-        hexToNumber(
-          log.blockNumber
-        );
-
-
-      const transaction =
-        log.transactionHash;
-
-
-      return `
-
-        <article class="activity-row">
-
-          <div class="activity-icon">
-            ↗
-          </div>
-
-
-          <div class="activity-main">
-
-            <strong>
-              ${formatNumber(amount)} IO
-            </strong>
-
-            <span>
-              ${shortAddress(fromAddress)}
-              →
-              ${shortAddress(toAddress)}
-            </span>
-
-          </div>
-
-
-          <div class="activity-meta">
-
-            <strong>
-              ON-CHAIN
-            </strong>
-
-            <small>
-              Block ${block}
-            </small>
-
-          </div>
-
-        </article>
-
-      `;
-
-    }).join("");
-
-}
-
-
-/* =========================================================
-   LOAD ACTIVITY
-========================================================= */
-
-async function loadActivity() {
-
-  const grid =
-    $("#activityGrid");
-
-  if (!grid) return;
-
-
-  grid.innerHTML = `
-    <div class="activity-loading">
-      Loading recent IO transactions...
-    </div>
-  `;
-
-
-  try {
-
-    await loadTokenDecimals();
-
-    const logs =
-      await getTransferLogs();
-
-    renderActivity(logs);
-
-  } catch (error) {
-
-    console.error(
-      "Activity error:",
-      error
+      }
     );
 
-
-    grid.innerHTML = `
-      <div class="activity-empty">
-        Unable to load recent IO activity right now.
-        Please refresh the page and try again.
-      </div>
-    `;
-
   }
+
+
+  draw();
+
+
+  /*
+    Slowly replace the activity list.
+  */
+
+  setInterval(
+    () => {
+
+      const rows =
+        grid.querySelectorAll(
+          ".activity-row"
+        );
+
+
+      rows.forEach(
+        (row, index) => {
+
+          setTimeout(
+            () => {
+
+              row.style.opacity = "0";
+              row.style.transform =
+                "translateY(18px)";
+
+            },
+            index * 100
+          );
+
+        }
+      );
+
+
+      setTimeout(
+        () => {
+
+          currentIndex =
+            (currentIndex + 1) %
+            activity.length;
+
+          draw();
+
+        },
+        2400
+      );
+
+    },
+    6000
+  );
 
 }
 
@@ -996,24 +585,18 @@ function setupCopy() {
 
         setTimeout(
           () => {
+
             button.textContent =
               "Copy";
+
           },
-          1500
+          1600
         );
 
       } catch {
 
         button.textContent =
           "Copy failed";
-
-        setTimeout(
-          () => {
-            button.textContent =
-              "Copy";
-          },
-          1500
-        );
 
       }
 
@@ -1040,16 +623,27 @@ function setupTheme() {
     () => {
 
       document.body.classList.toggle(
+        "light-mode"
+      );
+
+      document.body.classList.toggle(
         "light"
       );
 
 
-      button.textContent =
+      const isLight =
         document.body.classList.contains(
           "light"
-        )
-          ? "☼"
-          : "☾";
+        ) ||
+        document.body.classList.contains(
+          "light-mode"
+        );
+
+
+      button.textContent =
+        isLight
+          ? "☾"
+          : "☼";
 
     }
   );
@@ -1076,33 +670,27 @@ function setupWallet() {
     $("#modalConnectWallet");
 
 
-  function show() {
-
-    modal?.classList.remove(
-      "hidden"
-    );
-
-  }
-
-
-  function hide() {
-
-    modal?.classList.add(
-      "hidden"
-    );
-
-  }
-
-
   open?.addEventListener(
     "click",
-    show
+    () => {
+
+      modal?.classList.remove(
+        "hidden"
+      );
+
+    }
   );
 
 
   close?.addEventListener(
     "click",
-    hide
+    () => {
+
+      modal?.classList.add(
+        "hidden"
+      );
+
+    }
   );
 
 
@@ -1114,7 +702,9 @@ function setupWallet() {
         event.target === modal
       ) {
 
-        hide();
+        modal.classList.add(
+          "hidden"
+        );
 
       }
 
@@ -1136,6 +726,33 @@ function setupWallet() {
 
 
 /* =========================================================
+   CALCULATOR EVENTS
+========================================================= */
+
+function setupCalculator() {
+
+  const input =
+    $("#bnbAmount");
+
+  const button =
+    $("#calculateBtn");
+
+
+  input?.addEventListener(
+    "input",
+    calculateAllocation
+  );
+
+
+  button?.addEventListener(
+    "click",
+    calculateAllocation
+  );
+
+}
+
+
+/* =========================================================
    INITIALIZE
 ========================================================= */
 
@@ -1147,41 +764,20 @@ function init() {
 
   setupWallet();
 
+  setupCalculator();
 
-  $("#bnbAmount")?.addEventListener(
-    "input",
-    calculateAllocation
-  );
-
-
-  $("#calculateBtn")?.addEventListener(
-    "click",
-    calculateAllocation
-  );
-
+  renderActivity();
 
   loadPrices();
 
-  loadActivity();
-
 
   /*
-    Refresh market prices every minute.
+    Refresh Binance prices every minute.
   */
 
   setInterval(
     loadPrices,
     60000
-  );
-
-
-  /*
-    Refresh on-chain activity every two minutes.
-  */
-
-  setInterval(
-    loadActivity,
-    120000
   );
 
 }
