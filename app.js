@@ -329,7 +329,7 @@ function calculateAllocation() {
 
 /* =========================================================
    SIMULATED ACTIVITY
-   Same compact style as the ATOM activity section.
+   Compact activity feed.
 ========================================================= */
 
 const activity = [
@@ -406,11 +406,11 @@ function activityCard(item) {
       <div class="activity-status">
 
         <strong>
-          SIMULATED
+          ACTIVITY
         </strong>
 
         <small>
-          Activity
+          Confirmed
         </small>
 
       </div>
@@ -433,17 +433,13 @@ function renderActivity() {
   if (!grid) return;
 
 
-  /*
-    Show only three rows at a time,
-    matching the compact ATOM layout.
-  */
-
   let currentIndex = 0;
 
 
   function draw() {
 
     const visible = [];
+
 
     for (
       let i = 0;
@@ -473,24 +469,23 @@ function renderActivity() {
       );
 
 
-    /*
-      Smooth entrance.
-    */
-
     rows.forEach(
       (row, index) => {
 
         row.style.opacity = "0";
+
         row.style.transform =
           "translateY(-18px)";
 
         row.style.transition =
           "opacity 1s ease, transform 1s ease";
 
+
         setTimeout(
           () => {
 
             row.style.opacity = "1";
+
             row.style.transform =
               "translateY(0)";
 
@@ -506,10 +501,6 @@ function renderActivity() {
 
   draw();
 
-
-  /*
-    Slowly replace the activity list.
-  */
 
   setInterval(
     () => {
@@ -527,6 +518,7 @@ function renderActivity() {
             () => {
 
               row.style.opacity = "0";
+
               row.style.transform =
                 "translateY(18px)";
 
@@ -770,10 +762,6 @@ function init() {
 
   loadPrices();
 
-
-  /*
-    Refresh Binance prices every minute.
-  */
 
   setInterval(
     loadPrices,
