@@ -11,21 +11,71 @@ const CONTRACT_ADDRESS =
 let ioPrice = 0;
 let bnbPrice = 0;
 
-const $ = (selector) =>
-  document.querySelector(selector);
+const $ = (selector) => document.querySelector(selector);
 
+/* =========================================================
+   INLINE TOKEN LOGOS
+   No assets folder required.
+========================================================= */
 
-/* =========================
-   PRICE DATA
-========================= */
+const IO_LOGO = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <circle cx="100" cy="100" r="100" fill="#050505"/>
+  <g fill="none" stroke="#f4f5f7" stroke-width="16" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M58 70h30"/>
+    <path d="M58 130h30"/>
+    <path d="M74 70v60"/>
+    <path d="M112 70h25c10 0 18 8 18 18v24c0 10-8 18-18 18h-25"/>
+    <path d="M112 70v60"/>
+    <path d="M112 100h28"/>
+  </g>
+  <path d="M112 70h25c10 0 18 8 18 18v5" fill="none" stroke="#8e949c" stroke-width="10" stroke-linecap="round"/>
+</svg>
+`)}`;
+
+const BNB_LOGO = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <rect width="200" height="200" rx="22" fill="#ffffff"/>
+  <g fill="#F3BA2F">
+    <path d="M100 22l25 25-25 25-25-25z"/>
+    <path d="M53 69l25-25 16 16-25 25z"/>
+    <path d="M147 69l-16-16 25-25 25 25z"/>
+    <path d="M100 72l28 28-28 28-28-28z"/>
+    <path d="M53 109l25 25-16 16-25-25z"/>
+    <path d="M147 109l16 16-25 25-16-16z"/>
+    <path d="M100 139l25 25-25 25-25-25z"/>
+  </g>
+</svg>
+`)}`;
+
+/* Put the logos into every image already present in index.html. */
+function installLogos() {
+  document.querySelectorAll('img[alt="IO"]').forEach((img) => {
+    img.src = IO_LOGO;
+  });
+
+  document.querySelectorAll('img[alt="IO logo"]').forEach((img) => {
+    img.src = IO_LOGO;
+  });
+
+  document.querySelectorAll('img[alt="BNB logo"]').forEach((img) => {
+    img.src = BNB_LOGO;
+  });
+
+  document.querySelectorAll('img[alt="BNB Chain"]').forEach((img) => {
+    img.src = BNB_LOGO;
+  });
+}
+
+/* =========================================================
+   MARKET PRICES
+========================================================= */
 
 async function loadPrices() {
-
   const ioPriceEl = $("#ioPrice");
   const bnbPriceEl = $("#bnbPrice");
 
   try {
-
     const url =
       "https://api.coingecko.com/api/v3/simple/price" +
       "?ids=io-net,binancecoin" +
@@ -37,7 +87,7 @@ async function loadPrices() {
     });
 
     if (!response.ok) {
-      throw new Error("Price request failed");
+      throw new Error("Market request failed");
     }
 
     const data = await response.json();
@@ -46,19 +96,16 @@ async function loadPrices() {
     bnbPrice = Number(data?.[BNB_PRICE_ID]?.usd || 0);
 
     if (ioPrice > 0) {
-      ioPriceEl.textContent =
-        formatUSD(ioPrice);
+      ioPriceEl.textContent = formatUSD(ioPrice);
     } else {
       ioPriceEl.textContent = "Unavailable";
     }
 
     if (bnbPrice > 0) {
-      bnbPriceEl.textContent =
-        formatUSD(bnbPrice);
+      bnbPriceEl.textContent = formatUSD(bnbPrice);
     } else {
       bnbPriceEl.textContent = "Unavailable";
     }
-
 
     updateChange(
       "#ioChange",
@@ -70,10 +117,10 @@ async function loadPrices() {
       data?.[BNB_PRICE_ID]?.usd_24h_change
     );
 
-
     calculateAllocation();
 
   } catch (error) {
+    console.warn("Market data unavailable:", error);
 
     ioPriceEl.textContent = "Unavailable";
     bnbPriceEl.textContent = "Unavailable";
@@ -84,14 +131,14 @@ async function loadPrices() {
     $("#bnbChange").textContent =
       "Market feed unavailable";
 
+    calculateAllocation();
   }
-
 }
 
-
 function updateChange(selector, value) {
-
   const element = $(selector);
+
+  if (!element) return;
 
   if (
     typeof value !== "number" ||
@@ -99,6 +146,8 @@ function updateChange(selector, value) {
   ) {
     element.textContent =
       "Market change unavailable";
+
+    element.classList.remove("negative");
     return;
   }
 
@@ -113,9 +162,7 @@ function updateChange(selector, value) {
   );
 }
 
-
 function formatUSD(value) {
-
   if (!Number.isFinite(value)) {
     return "—";
   }
@@ -146,15 +193,15 @@ function formatUSD(value) {
   return `$${value.toFixed(4)}`;
 }
 
-
-/* =========================
-   CALCULATOR
-========================= */
+/* =========================================================
+   ALLOCATION CALCULATOR
+========================================================= */
 
 function calculateAllocation() {
-
   const input = $("#bnbAmount");
   const message = $("#calculatorMessage");
+
+  if (!input || !message) return;
 
   const amount = Number(input.value);
 
@@ -165,7 +212,6 @@ function calculateAllocation() {
     !ioPrice ||
     !bnbPrice
   ) {
-
     $("#estimatedIO").textContent = "0 IO";
     $("#bonusIO").textContent = "0 IO";
     $("#totalIO").textContent = "0 IO";
@@ -176,6 +222,9 @@ function calculateAllocation() {
     } else if (amount > MAX_BNB) {
       message.textContent =
         "Maximum participation is 500 BNB.";
+    } else if (!ioPrice || !bnbPrice) {
+      message.textContent =
+        "Waiting for current market prices.";
     } else {
       message.textContent =
         "Minimum 5 BNB · Maximum 500 BNB";
@@ -184,10 +233,8 @@ function calculateAllocation() {
     return;
   }
 
-
   message.textContent =
-    "Allocation estimate calculated from current market prices.";
-
+    "Estimate calculated from the current displayed market prices.";
 
   const baseIO =
     (amount * bnbPrice) / ioPrice;
@@ -198,7 +245,6 @@ function calculateAllocation() {
   const totalIO =
     baseIO + bonusIO;
 
-
   $("#estimatedIO").textContent =
     `${formatNumber(baseIO)} IO`;
 
@@ -207,240 +253,230 @@ function calculateAllocation() {
 
   $("#totalIO").textContent =
     `${formatNumber(totalIO)} IO`;
-
 }
 
-
 function formatNumber(value) {
-
   return new Intl.NumberFormat(
     "en-US",
     {
       maximumFractionDigits: 2
     }
   ).format(value);
-
 }
 
-
-$("#bnbAmount").addEventListener(
-  "input",
-  calculateAllocation
-);
-
-$("#calculateBtn").addEventListener(
-  "click",
-  calculateAllocation
-);
-
-
-/* =========================
-   ACTIVITY
-========================= */
+/* =========================================================
+   DEMO ACTIVITY
+   Clearly marked as sample portal activity.
+========================================================= */
 
 const activity = [
-
   {
     amount: "4,096.73",
-    address: "0x5680...7f0c",
-    time: "Recently",
-    status: "Allocation processed"
+    address: "0x5680...7f0c"
   },
-
   {
     amount: "3,214.66",
-    address: "0x6a84...42fd",
-    time: "Recently",
-    status: "Allocation processed"
+    address: "0x6a84...42fd"
   },
-
   {
     amount: "1,918.27",
-    address: "0x34c1...0ea1",
-    time: "Recently",
-    status: "Allocation processed"
+    address: "0x34c1...0ea1"
   },
-
   {
     amount: "6,758.34",
-    address: "0x95c3...ebdf",
-    time: "Recently",
-    status: "Allocation processed"
+    address: "0x95c3...ebdf"
   },
-
   {
     amount: "8,421.15",
-    address: "0xb01b...4914",
-    time: "Recently",
-    status: "Allocation processed"
+    address: "0xb01b...4914"
   },
-
   {
     amount: "5,672.91",
-    address: "0x709e...3635",
-    time: "Recently",
-    status: "Allocation processed"
+    address: "0x709e...3635"
+  },
+  {
+    amount: "2,480.40",
+    address: "0x8d42...91af"
+  },
+  {
+    amount: "7,318.52",
+    address: "0xa721...4bc8"
   }
 ];
 
+function activityCard(item) {
+  return `
+    <article class="activity-card">
+      <div class="activity-arrow">↗</div>
+
+      <div class="activity-main">
+        <strong>${item.amount} IO</strong>
+
+        <code>${item.address}</code>
+
+        <span>
+          Sample allocation
+        </span>
+      </div>
+
+      <time>
+        Demo
+      </time>
+    </article>
+  `;
+}
 
 function renderActivity() {
-
   const grid = $("#activityGrid");
 
-  grid.innerHTML = activity.map(
-    item => `
+  if (!grid) return;
 
-      <article class="activity-card">
+  /*
+    Duplicate the list so the CSS can move the first half
+    out while the second half takes its place.
+  */
+  const cards = [...activity, ...activity];
 
-        <div class="activity-arrow">
-          ↗
-        </div>
-
-        <div class="activity-main">
-
-          <strong>
-            ${item.amount} IO
-          </strong>
-
-          <code>
-            ${item.address}
-          </code>
-
-          <span>
-            ${item.status}
-          </span>
-
-        </div>
-
-        <time>
-          ${item.time}
-        </time>
-
-      </article>
-
-    `
-  ).join("");
-
+  grid.innerHTML = cards
+    .map(activityCard)
+    .join("");
 }
 
-
-/* =========================
+/* =========================================================
    COPY CONTRACT
-========================= */
+========================================================= */
 
-$("#copyContract").addEventListener(
-  "click",
-  async () => {
+const copyButton = $("#copyContract");
 
-    try {
+if (copyButton) {
+  copyButton.addEventListener(
+    "click",
+    async () => {
+      try {
+        await navigator.clipboard.writeText(
+          CONTRACT_ADDRESS
+        );
 
-      await navigator.clipboard.writeText(
-        CONTRACT_ADDRESS
-      );
+        copyButton.textContent = "Copied";
 
-      $("#copyContract").textContent =
-        "Copied";
+        setTimeout(() => {
+          copyButton.textContent = "Copy";
+        }, 1600);
 
-      setTimeout(() => {
-
-        $("#copyContract").textContent =
-          "Copy";
-
-      }, 1600);
-
-    } catch {
-
-      $("#copyContract").textContent =
-        "Copy failed";
-
+      } catch {
+        copyButton.textContent = "Copy failed";
+      }
     }
+  );
+}
 
-  }
-);
-
-
-/* =========================
+/* =========================================================
    WALLET MODAL
-========================= */
+========================================================= */
 
-const walletModal =
-  $("#walletModal");
-
+const walletModal = $("#walletModal");
 
 function openWallet() {
-  walletModal.classList.remove("hidden");
+  if (walletModal) {
+    walletModal.classList.remove("hidden");
+  }
 }
-
 
 function closeWallet() {
-  walletModal.classList.add("hidden");
+  if (walletModal) {
+    walletModal.classList.add("hidden");
+  }
 }
 
+const connectWallet = $("#connectWallet");
+const modalConnectWallet = $("#modalConnectWallet");
+const closeWalletButton = $("#closeWallet");
 
-$("#connectWallet").addEventListener(
-  "click",
-  openWallet
-);
+if (connectWallet) {
+  connectWallet.addEventListener(
+    "click",
+    openWallet
+  );
+}
 
-$("#modalConnectWallet").addEventListener(
-  "click",
-  () => {
-
-    $("#modalConnectWallet").textContent =
-      "Wallet connection unavailable";
-
-  }
-);
-
-$("#closeWallet").addEventListener(
-  "click",
-  closeWallet
-);
-
-walletModal.addEventListener(
-  "click",
-  event => {
-
-    if (event.target === walletModal) {
-      closeWallet();
+if (modalConnectWallet) {
+  modalConnectWallet.addEventListener(
+    "click",
+    () => {
+      modalConnectWallet.textContent =
+        "Wallet connection unavailable";
     }
+  );
+}
 
-  }
-);
+if (closeWalletButton) {
+  closeWalletButton.addEventListener(
+    "click",
+    closeWallet
+  );
+}
 
+if (walletModal) {
+  walletModal.addEventListener(
+    "click",
+    (event) => {
+      if (event.target === walletModal) {
+        closeWallet();
+      }
+    }
+  );
+}
 
-/* =========================
+/* =========================================================
    THEME
-========================= */
+========================================================= */
 
-const themeButton =
-  $("#themeToggle");
+const themeButton = $("#themeToggle");
 
-
-themeButton.addEventListener(
-  "click",
-  () => {
-
-    document.body.classList.toggle(
-      "light-mode"
-    );
-
-    themeButton.textContent =
-      document.body.classList.contains(
+if (themeButton) {
+  themeButton.addEventListener(
+    "click",
+    () => {
+      document.body.classList.toggle(
         "light-mode"
-      )
-        ? "☾"
-        : "☼";
+      );
 
-  }
-);
+      themeButton.textContent =
+        document.body.classList.contains(
+          "light-mode"
+        )
+          ? "☾"
+          : "☼";
+    }
+  );
+}
 
+/* =========================================================
+   CALCULATOR EVENTS
+========================================================= */
 
-/* =========================
+const bnbInput = $("#bnbAmount");
+const calculateButton = $("#calculateBtn");
+
+if (bnbInput) {
+  bnbInput.addEventListener(
+    "input",
+    calculateAllocation
+  );
+}
+
+if (calculateButton) {
+  calculateButton.addEventListener(
+    "click",
+    calculateAllocation
+  );
+}
+
+/* =========================================================
    INITIALIZE
-========================= */
+========================================================= */
 
+installLogos();
 renderActivity();
 loadPrices();
 
